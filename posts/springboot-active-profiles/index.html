@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>Spring Boot动态profiles的实践 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2018-03-15 16:55
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2018-03-15 16:55</p>
+            
+            <div class="markdown-body">
+              <h3 id="Spring-Boot的Profiles属性"><a href="#Spring-Boot的Profiles属性" class="headerlink" title="Spring Boot的Profiles属性"></a>Spring Boot的Profiles属性</h3><p>Spring Boot中有一个profiles的概念，解决了不同环境需要不同配置的问题。</p>
+<p>项目中一般会有多个application.yml文件，<code>application.yml</code> 可以认为是主配置文件，其他的<code>application-dev.yml</code> <code>application-test.yml</code>……可以认为是子配置文件。</p>
+<p>主配置文件中，会定义<code>spring: profiles: active:</code>属性，用于指定某个子配置文件。</p>
+<p>子配置文件中，会定义<code>spring: profiles:</code>属性，用于指定自己是哪个子配置文件。</p>
+<p>被指定的子配置文件中的其他配置，将会覆盖掉主配置文件中的同名属性。可以参考下面的例子</p>
+<pre><code class="yaml"># application.yml配置文件
+spring:
+  profiles:
+    active: dev
+
+custom-properties:
+  one-cookie: 被覆盖的曲奇饼干</code></pre>
+<pre><code class="yaml"># application-dev.yml配置文件
+spring:
+  profiles: dev
+
+custom-properties:
+  one-cookie: 开发中的曲奇饼干</code></pre>
+<pre><code class="yaml"># application-prod.yml配置文件
+spring:
+  profiles: prod
+
+custom-properties:
+  one-cookie: 生产中的曲奇饼干</code></pre>
+<pre><code class="java">// 请求方法：测试项目启动后，配置文件中custom-properties: one-cookie:属性值是什么
+
+@Value(&quot;${custom-properties.one-cookie}&quot;)
+private String oneCookie;
+
+@GetMapping(&quot;test&quot;)
+public String test() {
+    return this.oneCookie;
+}</code></pre>
+<p>访问<code>http://localhost/test</code>将会得到<code>开发中的曲奇饼干</code>。</p>
+<h3 id="Maven的profiles标签"><a href="#Maven的profiles标签" class="headerlink" title="Maven的profiles标签"></a>Maven的profiles标签</h3><p>到目前为止，可以看到，Spring Boot的<code>spring: profiles: active:</code>必须是硬编码的，每次不同环境打包/调试时，都要主动去改这个属性，显得非常的不方便。</p>
+<p>现在，需要引入Maven的profiles标签，来实现动态指定profiles的效果。</p>
+<p>如下所示，在pom.xml中追加profiles标签。</p>
+<pre><code class="xml">&lt;!--pom.xml--&gt;
+&lt;profiles&gt;
+           &lt;!--dev环境--&gt;
+        &lt;profile&gt;
+            &lt;id&gt;dev&lt;/id&gt;
+            &lt;properties&gt;
+                &lt;profiles.active&gt;dev&lt;/profiles.active&gt;
+            &lt;/properties&gt;
+            &lt;!--默认为dev--&gt;
+            &lt;activation&gt;
+                &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+            &lt;/activation&gt;
+        &lt;/profile&gt;
+        &lt;!--prod环境--&gt;
+        &lt;profile&gt;
+            &lt;id&gt;prod&lt;/id&gt;
+            &lt;properties&gt;
+                &lt;profiles.active&gt;prod&lt;/profiles.active&gt;
+            &lt;/properties&gt;
+        &lt;/profile&gt;
+    &lt;/profiles&gt;
+&lt;/profiles&gt;</code></pre>
+<p>并将<code>application.yml</code>的<code>spring: profiles: active:</code>从硬编码更改为与properties标签中的自定义标签一致的占位符。</p>
+<pre><code class="yaml"># application.yml配置文件
+spring:
+  profiles:
+    active: @profiles.active@
+
+custom-properties:
+  one-cookie: 被覆盖的曲奇饼干</code></pre>
+<p>至此，配置完成。</p>
+<h3 id="打包方式"><a href="#打包方式" class="headerlink" title="打包方式"></a>打包方式</h3><p>通过以下的命令行进行打包</p>
+<pre><code class="cmd">mvn clean install -Pprod</code></pre>
+<p><code>-Pprod</code>将会找到id为<code>prod</code>所在profile标签中的profiles.active标签，并用标签值替换掉<code>application.yml</code>的<code>@profiles.active@</code>占位符。</p>
+<p>虽然所有的application.yml文件都会被打进包内，但是<code>application.yml</code>只会指定<code>prod</code>作为profile。</p>
+<p>这里的<code>-Pprod</code>可以不指定，那样做的话将会缺省为<code>activeByDefault</code>为<code>true</code>的<code>profile</code></p>
+<h3 id="调试方式A"><a href="#调试方式A" class="headerlink" title="调试方式A"></a>调试方式A</h3><p>可以通过以下的命令行进行打包</p>
+<pre><code class="cmd">mvn spring-boot:run -Pprod</code></pre>
+<p>与<code>clean install</code>同理。</p>
+<p>这个方式需要项目有Maven插件<code>spring-boot-maven-plugin</code></p>
+<h3 id="调试方式B"><a href="#调试方式B" class="headerlink" title="调试方式B"></a>调试方式B</h3><p>对于那种项目中有多个启动方法的微服务项目，<code>spring-boot:run</code>命令可能会有问题。</p>
+<p>这类项目一般用main方法调试更方便，那么也可以通过在main方法后面追加一下的Java参数来指定profiles</p>
+<pre><code>-Dspring.profiles.active=dev</code></pre><p>这种方式<strong>无法缺省</strong>，一旦不指定<code>-Dspring.profiles.active</code>，就会报错，因为它不是Maven命令行，无法使用定义在Maven的pom.xml中缺省值。</p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Spring-Boot/">Spring Boot</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Spring Boot动态profiles的实践&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

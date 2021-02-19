@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>基于Jackson的JSON工具类 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2018-02-07 21:22
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2020-11-22 22:42</p>
+            
+            <div class="markdown-body">
+              <p>一共有3个java文件，1个Exception，2个Util，抽取出ObjectMapperUtils是为了基于Jackson的CSV工具类也能用上</p>
+<pre><code class="java">/**
+ * JSON工具类
+ *
+ * &lt;pre&gt;
+ * 序列化与反序列化策略参考{@link ObjectMapperUtils#initDefault}
+ * &lt;/pre&gt;
+ *
+ * @author Deolin 2018-04-02
+ */
+@Slf4j
+public class JsonUtils {
+
+    private static final ObjectMapper om = ObjectMapperUtils.initDefault(new ObjectMapper());
+
+    private JsonUtils() {
+        throw new UnsupportedOperationException(&quot;Never instantiate me.&quot;);
+    }
+
+    /**
+     * 将对象转化为JSON
+     */
+    public static String toJson(Object object) {
+        return toJson(object, om);
+    }
+
+    /**
+     * 将对象转化为JSON
+     */
+    public static String toJson(Object object, ObjectMapper om) {
+        try {
+            return om.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            log.error(&quot;object={}&quot;, object, e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
+     * 将对象转化为JSON，结果是美化的
+     */
+    public static String toJsonPrettily(Object object) {
+        return toJsonPrettily(object, om);
+    }
+
+    /**
+     * 将对象转化为JSON，结果是美化的
+     */
+    public static String toJsonPrettily(Object object, ObjectMapper om) {
+        try {
+            return om.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            log.error(&quot;object={}&quot;, object, e);
+            throw new JsonException(&quot;转化JSON失败&quot;);
+        }
+    }
+
+    /**
+     * 将JSON转化为对象
+     */
+    public static &lt;T&gt; T toObject(String json, Class&lt;T&gt; clazz) throws JsonException {
+        return toObject(json, clazz, om);
+    }
+
+    /**
+     * 将JSON转化为对象
+     */
+    public static &lt;T&gt; T toObject(String json, Class&lt;T&gt; clazz, ObjectMapper om) throws JsonException {
+        try {
+            return om.readValue(json, clazz);
+        } catch (IOException e) {
+            log.error(&quot;json={}, clazz={}&quot;, json, clazz, e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
+     * 将JSON转化为对象列表
+     */
+    public static &lt;T&gt; List&lt;T&gt; toListOfObject(String json, Class&lt;T&gt; clazz) throws JsonException {
+        return toListOfObject(json, clazz, om);
+    }
+
+    /**
+     * 将JSON转化为对象列表
+     */
+    public static &lt;T&gt; List&lt;T&gt; toListOfObject(String json, Class&lt;T&gt; clazz, ObjectMapper om) throws JsonException {
+        try {
+            @SuppressWarnings(&quot;unchecked&quot;) Class&lt;T[]&gt; arrayClass = (Class&lt;T[]&gt;) Class
+                    .forName(&quot;[L&quot; + clazz.getName() + &quot;;&quot;);
+            return Lists.newArrayList(om.readValue(json, arrayClass));
+        } catch (IOException | ClassNotFoundException e) {
+            log.error(&quot;json={}, clazz={}&quot;, json, clazz, e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
+     * JSON -&gt; 参数化的对象
+     */
+    public static &lt;T&gt; T toParameterizedObject(String json, TypeReference&lt;T&gt; typeReference) throws JsonException {
+        return toParameterizedObject(json, typeReference, om);
+    }
+
+    /**
+     * JSON -&gt; 参数化的对象
+     */
+    public static &lt;T&gt; T toParameterizedObject(String json, TypeReference&lt;T&gt; typeReference, ObjectMapper om)
+            throws JsonException {
+        try {
+            return om.readValue(json, typeReference);
+        } catch (JsonProcessingException e) {
+            log.error(&quot;json={}, typeReference={}&quot;, json, typeReference, e);
+            throw new JsonException(e);
+        }
+    }
+
+    /**
+     * JSON -&gt; JsonNode对象
+     *
+     * &lt;strong&gt;除非JSON对应数据结构在运行时是变化的，否则不建议使这个方法&lt;/strong&gt;
+     */
+    public static JsonNode toTree(String json) throws JsonException {
+        return toTree(json, om);
+    }
+
+    /**
+     * JSON -&gt; JsonNode对象
+     *
+     * &lt;strong&gt;除非JSON对应数据结构在运行时是变化的，否则不建议使这个方法&lt;/strong&gt;
+     */
+    public static JsonNode toTree(String json, ObjectMapper om) throws JsonException {
+        try {
+            return om.readTree(json);
+        } catch (JsonProcessingException e) {
+            log.error(&quot;json={}&quot;, json, e);
+            throw new JsonException(e);
+        }
+    }
+
+}</code></pre>
+<pre><code class="java">/**
+ * 工具类Jsons内部抛出的异常，调用方可自行决定如何处理
+ *
+ * @author Deolin 2020-03-05
+ * @see JsonUtils
+ */
+public class JsonException extends RuntimeException {
+
+    private static final long serialVersionUID = 2506389302288058433L;
+
+    public JsonException() {
+        super();
+    }
+
+    public JsonException(String message) {
+        super(message);
+    }
+
+    public JsonException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public JsonException(Throwable cause) {
+        super(cause);
+    }
+
+    protected JsonException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+}</code></pre>
+<pre><code class="java">/**
+ * 对Jackson的核心 ObjectMapper 进行配置的工具类
+ *
+ * @author Deolin 2020-09-19
+ */
+public class ObjectMapperUtils {
+
+    /**
+     * 对 ObjectMapper 进行缺省化配置
+     *
+     * &lt;pre&gt;
+     * 1. 时间相关的pattern缺省为yyyy-MM-dd HH:mm:ss、yyyy-MM-dd、HH:mm:ss，时区缺省为系统时区
+     * 2. 发现并注册所有 jackson-datatype-* 依赖
+     * 3. 反序列化时，忽略Javabean中不存在的属性，而不是抛出异常
+     * 4. 反序列化时，忽略Javabean中Collection属性对应JSON Array中的为null的元素
+     * &lt;/pre&gt;
+     *
+     * @see ObjectMapperUtils#findAndRegister
+     * @see ObjectMapperUtils#ignoreCollectionNullElement
+     * @see ObjectMapperUtils#ignoreUnknownProperties
+     * @see ObjectMapperUtils#setJavaUtilDateZone
+     * @see ObjectMapperUtils#setJavaTimePattern
+     * @see ObjectMapperUtils#setJavaUtilDatePattern
+     */
+    public static &lt;T extends ObjectMapper&gt; T initDefault(T om) {
+        ObjectMapperUtils.findAndRegister(om);
+        ObjectMapperUtils.ignoreCollectionNullElement(om);
+        ObjectMapperUtils.ignoreUnknownProperties(om);
+        ObjectMapperUtils.setJavaUtilDateZone(om, null);
+        ObjectMapperUtils.setJavaTimePattern(om, &quot;yyyy-MM-dd HH:mm:ss&quot;, &quot;yyyy-MM-dd&quot;, &quot;HH:mm:ss&quot;);
+        ObjectMapperUtils.setJavaUtilDatePattern(om, &quot;yyyy-MM-dd HH:mm:ss&quot;);
+        return om;
+    }
+
+    /**
+     * 使 ObjectMapper 自动发现和注册 jackson-datatype-* 所提供的Module
+     */
+    public static void findAndRegister(ObjectMapper om) {
+        om.findAndRegisterModules();
+    }
+
+    /**
+     * 使 ObjectMapper 在反序列化时，忽略Javabean中不存在的属性，而不是抛出异常
+     */
+    public static void ignoreUnknownProperties(ObjectMapper om) {
+        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+    /**
+     * 使 ObjectMapper 在反序列化时，忽略Javabean中Collection属性对应JSON Array中的为null的元素
+     */
+    public static void ignoreCollectionNullElement(ObjectMapper om) {
+        om.registerModule(new IgnoreCollectionNullElementDeserializeModule());
+    }
+
+    /**
+     * 为 ObjectMapper 配置时区
+     *
+     * @param timeZone 为null时缺省为TimeZone.getDefault()
+     */
+    public static void setJavaUtilDateZone(ObjectMapper om, TimeZone timeZone) {
+        if (timeZone == null) {
+            timeZone = TimeZone.getDefault();
+        }
+        om.setTimeZone(timeZone);
+    }
+
+    /**
+     * 为 ObjectMapper 配置java.util.Date的全局pattern
+     */
+    public static void setJavaUtilDatePattern(ObjectMapper om, String pattern) {
+        om.setDateFormat(new SimpleDateFormat(pattern));
+    }
+
+    /**
+     * 为 ObjectMapper 分别配置（java.time.）LocalDateTime、LocalDate、LocalTime的全局pattern
+     */
+    public static void setJavaTimePattern(ObjectMapper om, String localDateTimePattern, String localDatePattern,
+            String localTimePattern) {
+        SimpleModule module = new JavaTimeModule();
+        DateTimeFormatter ldtFormatter = DateTimeFormatter.ofPattern(localDateTimePattern);
+        DateTimeFormatter ldFormatter = DateTimeFormatter.ofPattern(localDatePattern);
+        DateTimeFormatter ltFormattter = DateTimeFormatter.ofPattern(localTimePattern);
+        module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(ldtFormatter))
+                .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(ldtFormatter))
+                .addSerializer(LocalDate.class, new LocalDateSerializer(ldFormatter))
+                .addDeserializer(LocalDate.class, new LocalDateDeserializer(ldFormatter))
+                .addSerializer(LocalTime.class, new LocalTimeSerializer(ltFormattter))
+                .addDeserializer(LocalTime.class, new LocalTimeDeserializer(ltFormattter));
+        om.registerModule(module);
+    }
+
+}</code></pre>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%B7%A5%E5%85%B7%E7%B1%BB/">工具类</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "基于Jackson的JSON工具类&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

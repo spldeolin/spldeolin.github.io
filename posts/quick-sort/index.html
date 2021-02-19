@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>快速排序 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2017-05-09 20:05
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2017-05-09 20:05</p>
+            
+            <div class="markdown-body">
+              <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST是<strong>快速排序</strong>的DEMO。</p>
+<p>在原始的快速排序追加了一些增强：</p>
+<ul>
+<li>当递归进行到后期，待排序数组足够小时，剩余元素使用插入排序（InsertionSort）效率更好</li>
+<li>使用<strong>三数取中法</strong>作为算法的第一步，用于获取基准元素。</li>
+</ul>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><pre><code class="java">public class QuickSort&lt;T extends Comparable&lt;? super T&gt;&gt; {
+
+    /**
+     * 这是个经验值。当待排序数组小于等于这个值时，对剩余元素进行插入排序
+     */
+    private static final int CUTOFF = 10; 
+
+    public void sort(T[] arr) {
+        quickSort(arr, 0, arr.length - 1);
+    }
+
+    /**
+     * 算法主体 快速排序
+     * 这个方法会不断地递归自身，一次递归代表“一趟排序”
+     */
+    private void quickSort(T[] arr, int left, int right) {
+        int size = right - left;
+        if (size &gt; CUTOFF) {
+            T pivot = median3(arr, left, right);
+
+            // 定义游标i, j，由于最左和最右的元素经过三数取中法之后
+            // 已经确保了前者小于基准元素，后者大于基准元素
+            // 所以游标应该越过他们
+            int i = left;
+            int j = right - 1;
+
+            // 游标开始移动，直到i不在j的左侧
+            for(;;) {
+                // 游标i不断向右侧移动，直到所指向的元素不再小于基准元素，才停止
+                while (arr[++i].compareTo(pivot) &lt; 0) {}
+                // 游标j不断向左侧移动，直到所指向的元素不再大于基准元素，才停止
+                while (arr[--j].compareTo(pivot) &gt; 0) {}
+
+                // i还在j的左侧，而且游标各自指向一个小于基准和大于基准的元素
+                if (i &lt; j) {
+                    // 大于基准的元素换到右侧，小于基准的元素换到左侧
+                    swapRef(arr, i, j);
+
+                // 这种情况指的是i, j擦身而过才停止，那么i已经进入了j曾走过的路径，j也如此，说明小于基准元素的元素和大于基准元素的元素已经分离，分离点正是i
+                } else {
+                    // 既然已经分离了，那么游标的工作就结束了
+                    break;
+                }
+            }
+            // 将i指向的元素，和基准元素互换，达到以下示意的效果
+            // [  *小于基准的元素们*  ]， [基准元素]， [  *大于基准的元素们*  ]
+            swapRef(arr, i, right - 1);
+
+
+            // 以基准元素为分割，前后递归分治
+            quickSort(arr, left, i - 1);
+            quickSort(arr, i + 1, right);
+
+        } else {
+            insertionSort(arr, left, right);
+        }
+    }
+
+    /** 三分法取基准元素 */
+    private T median3(T[] arr, int left, int right) {
+        int center = (left + right) / 2;
+        // 1、确保最左元素小于中间的元素
+        if (arr[left].compareTo(arr[center]) &gt; 0) {
+            swapRef(arr, left, center);
+        }
+        // 2、确保最左元素小于最右元素（结合1、2，最左元素是最小的了）
+        if (arr[left].compareTo(arr[right]) &gt; 0) {
+            swapRef(arr, left, right);   
+        }
+        // 3、确保中间元素大于最右元素（结合2、3，最右元素是最大的了）（结合2、3括号里的内容，中间元素是中间值）
+        if (arr[center].compareTo(arr[right]) &gt; 0) {
+            swapRef(arr, center, right);   
+        }
+        // 基准元素移动到倒数第二位，为了不阻挡后续游标i, j的移动
+        swapRef(arr, center, right - 1);
+        return arr[right - 1];
+    }
+
+    /**
+     * 插入排序
+     * 对数组从left到right的元素进行排序
+     */
+    private void insertionSort(T[] arr, int left, int right) {
+        int j;
+
+        // 这里一次循环代表&quot;一趟排序&quot;
+        // “第i趟排序”结束时，从left至第i号的元素是有序的，所以i从left+1开始，到right为止
+        for (int i = left + 1; i &lt;= right; i++) {
+            // 每趟都是为i号元素进行插队
+            T selected = arr[i];
+              for (j = i; j &gt; 0 &amp;&amp; arr[j - 1].compareTo(selected) &gt; 0; j--) {  
+                // 准备插队的过程中，比插队元素大的元素应该往后走一位，效果就是一个“空位”不断向左移
+                arr[j] = arr[j - 1];
+            }
+            // “空位”停止了移动，因为“空位”前方的元素比插队元素小，
+            // 而“空位”后方也是比插队元素大的最后一个元素，
+            // 插队元素完成了插队，该趟插入排序结束
+            arr[j] = selected;
+        }
+    }
+
+    /** 位置交换 */
+    private void swapRef(T[] arr, int oneIndex, int anotherIndex) {
+        T temp = arr[oneIndex];
+        arr[oneIndex] = arr[anotherIndex];
+        arr[anotherIndex] = temp;
+    }
+
+}</code></pre>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><pre><code class="java">    public static void main(String[] args) {
+        // 生成一个长度为100，元素在0～50随机分布的列表
+        Random random = new Random();
+        List&lt;Integer&gt; list = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; 100; i++) {
+            list.add(random.nextInt(50));
+        }
+        System.out.println(list);
+
+        System.out.println(&quot;&quot;);
+
+        Integer[] arr = list.toArray(new Integer[0]);
+        QuickSort&lt;Integer&gt; sorter = new QuickSort&lt;&gt;();
+        sorter.sort(arr);
+        for (Integer ele : arr) {
+            System.out.print(ele + &quot;　&quot;);
+        }
+    }</code></pre>
+<pre><code>[29, 28, 28, 14, 17, 35, 27, 18, 28, 17, 44, 3, 7, 33, 39, 19, 36, 2, 8, 42, 48, 47, 31, 44, 46, 40, 24, 26, 31, 34, 2, 8, 19, 29, 25, 26, 28, 20, 6, 20, 28, 5, 23, 37, 16, 17, 25, 30, 34, 44, 9, 20, 27, 23, 4, 10, 17, 26, 5, 8, 0, 3, 32, 20, 2, 30, 47, 44, 10, 20, 17, 23, 42, 14, 13, 1, 35, 29, 39, 42, 17, 1, 16, 19, 14, 36, 9, 15, 7, 9, 1, 1, 47, 14, 48, 10, 36, 35, 17, 34]
+
+0　1　1　1　1　2　2　2　3　3　4　5　5　6　7　7　8　8　8　9　9　9　10　10　10　13　14　14　14　14　15　16　16　17　17　17　17　17　17　17　18　19　19　19　20　20　20　20　20　23　23　23　24　25　25　26　26　26　27　27　28　28　28　28　28　29　29　29　30　30　31　31　32　33　34　34　34　35　35　35　36　36　36　37　39　39　40　42　42　42　44　44　44　44　46　47　47　47　48　48　</code></pre>
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E7%AE%97%E6%B3%95/">算法</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "快速排序&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

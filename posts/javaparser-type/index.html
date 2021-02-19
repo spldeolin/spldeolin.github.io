@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>Javaparser类型简析 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2019-11-01 21:46
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2020-01-21 21:54</p>
+            
+            <div class="markdown-body">
+              <h2 id="BodyDeclaration-“声明”"><a href="#BodyDeclaration-“声明”" class="headerlink" title="BodyDeclaration “声明”"></a>BodyDeclaration “声明”</h2><ol>
+<li><p><code>AnnotationDeclaration</code></p>
+<pre><code class="java">public @interface JedisOperation {
+    ...
+}</code></pre>
+</li>
+<li><p><code>AnnotationMemberDeclaration</code></p>
+<pre><code class="java">boolean paramInReturned() default false; // @interface里的属性</code></pre>
+</li>
+<li><p><code>ClassOrInterfaceDeclaration</code></p>
+<pre><code class="java">public class Student {
+    ...
+}</code></pre>
+<pre><code class="java">public interface payable {
+    ...
+}</code></pre>
+</li>
+<li><p><code>ConstructorDeclaration</code></p>
+<pre><code class="java">    public BaseBizException() { // 构造方法
+        ...
+    }</code></pre>
+</li>
+<li><p><code>EnumConstantDeclaration</code></p>
+<pre><code class="java">    SPRING(1, &quot;spring&quot;), // 枚举元素</code></pre>
+</li>
+<li><p><code>EnumDeclaration</code></p>
+<pre><code class="java">public enum FourSession {
+    ...
+}</code></pre>
+</li>
+<li><p><code>FieldDeclaration</code></p>
+<pre><code class="java">    private List&lt;StudentDTO&gt; students;</code></pre>
+</li>
+<li><p><code>InitializerDeclaration</code></p>
+<pre><code class="java">    { // 构造代码块
+         ...
+    }</code></pre>
+<pre><code class="java">    static { // 静态代码块
+        ....
+    }</code></pre>
+</li>
+<li><p><code>MethodDeclaration</code></p>
+<pre><code class="java">    private void doSomething(Long userId) {
+         ...
+    }</code></pre>
+<pre><code class="java">    public abstract onSuccess(Long userId);</code></pre>
+</li>
+<li><p><code>PackageDeclaration</code></p>
+<pre><code class="java">package com.spldeolin.demo.entity;</code></pre>
+</li>
+<li><p><code>VariableDeclarator</code></p>
+<pre><code class="java">    userService // 处于 @Autowired private UserService userService;中</code></pre>
+<pre><code>    i = 0 // 处于for (int i = 0; i &lt; size; i ++)中</code></pre></li>
+<li><p><code>ImportDeclaration</code></p>
+<pre><code class="java">import com.spldeolin.demo.entity.UserEntity;</code></pre>
+</li>
+<li><p><code>ModuleDeclaration</code></p>
+<p>Java9的“模块”</p>
+<p><code>ModuleDeclaration</code>不是<code>BodyDeclaration</code>的派生类</p>
+</li>
+</ol>
+<h2 id="Expression-“表达式”"><a href="#Expression-“表达式”" class="headerlink" title="Expression “表达式”"></a>Expression “表达式”</h2><ol>
+<li><p><code>ArrayAccessExpr</code></p>
+<p>数组对象+中括号下标</p>
+</li>
+<li><p><code>ArrayCreationExpr</code></p>
+<p>通过指定个数或者指定所有元素的方式new一个数组</p>
+</li>
+<li><p><code>ArrayInitializerExpr</code></p>
+<p>指定数组元素时的整个大括号</p>
+</li>
+<li><p><code>AssignExpr</code></p>
+<pre><code class="java">a = 5</code></pre>
+</li>
+<li><p><code>BinaryExpr</code></p>
+<pre><code class="java">a + 1</code></pre>
+</li>
+<li><p><code>CastExpr</code></p>
+<pre><code class="java">(long) 15</code></pre>
+</li>
+<li><p><code>ClassExpr</code></p>
+<p>例如：<code>UserEntity.class</code></p>
+</li>
+<li><p><code>ConditionalExpr</code></p>
+<pre><code class="java">if (a)</code></pre>
+</li>
+<li><p><code>EnclosedExpr</code></p>
+<p>整个小括号</p>
+</li>
+<li><p><code>FieldAccessExpr</code></p>
+<p>访问field（包含<code>this</code>关键字）</p>
+</li>
+<li><p><code>InstanceOfExpr</code></p>
+<p>例如：<code>userDTO instaceof BaseDTO</code></p>
+</li>
+<li><p><code>MarkerAnnotationExpr</code></p>
+<p>例如：<code>@Override</code></p>
+</li>
+<li><p><code>MethodCallExpr</code></p>
+<p>方法调用（链式调用一整句话算一个<code>MethodCallExpr</code>对象）</p>
+</li>
+<li><p><code>NameExpr</code></p>
+<ul>
+<li><p>最基础的<code>Expression</code>，代表变量名、属性名、package名等等等…</p>
+</li>
+<li><p>很多<code>Expression</code>内部都是由若干个<code>NameExpr</code>组成，例如，一个非链式调用的<code>MethodCallExpr</code>对象，内部有一个<code>NameExpr scope</code>属性，代表点号左侧那个被调用方名称；再例如，<code>FieldAccessExpr</code>内部有个<code>NameExpr name</code>属性，代表field的名称</p>
+</li>
+<li><p><code>NameExpr</code>内部只有个<code>SimpleName</code>类型的属性，后者是个最基础的<code>Node</code></p>
+</li>
+</ul>
+</li>
+<li><p><code>NormalAnnotationExpr</code></p>
+<pre><code class="java">@Max(value = 1, message = &quot;不能超过1&quot;)</code></pre>
+</li>
+<li><p><code>ObjectCreationExpr</code></p>
+<p>new对象</p>
+</li>
+<li><p><code>SingleMemberAnnotationExpr</code></p>
+<p>例如：<code>@JsonProperty(&quot;started_at&quot;)</code></p>
+</li>
+<li><p><code>SuperExpr</code></p>
+<p>就一个<code>super</code>关键字代表的表达式</p>
+</li>
+<li><p><code>ThisExpr</code></p>
+<p>就一个<code>this</code>关键字代表的表达式</p>
+</li>
+<li><p><code>UnaryExpr</code></p>
+<p>一元表达式，包括非运算、取反、自增、自减等</p>
+</li>
+<li><p><code>VariableDeclarationExpr</code></p>
+<ul>
+<li>一个声明局部变量的表达式</li>
+<li>内部由n个<code>VariableDeclarator</code>对象构成，区别如下<ul>
+<li><code>int a=0, b, c=-111</code>是<code>VariableDeclarationExpr</code>对象</li>
+<li><code>a=0</code>是<code>VariableDeclarator</code>对象，<code>b</code>和<code>c=-111</code>也是</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><code>LambdaExpr</code></p>
+<p>Java8的Lambda表达式，标志性运算符是<code>-&gt;</code></p>
+</li>
+<li><p><code>MethodReferenceExpr</code></p>
+<p>Java8的方法指针，标志性运算符是<code>::</code></p>
+</li>
+<li><p><code>TypeExpr</code></p>
+<p>与<code>NameExpr</code>地位相似，最基础的<code>Expression</code>，代表变量类型、属性类型等等等…</p>
+<p>很多<code>Expression</code>内部都有<code>TypeExpr</code></p>
+</li>
+<li><p><code>SwitchExpr</code></p>
+<p>Java12的Switch表达式</p>
+</li>
+</ol>
+<h3 id="LiteralExpr-“字面量”"><a href="#LiteralExpr-“字面量”" class="headerlink" title="LiteralExpr “字面量”"></a>LiteralExpr “字面量”</h3><ol>
+<li><p><code>BooleanLiteralExpr</code></p>
+</li>
+<li><p><code>CharLiteralExpr</code></p>
+</li>
+<li><p><code>DoubleLiteralExpr</code></p>
+</li>
+<li><p><code>IntegerLiteralExpr</code></p>
+</li>
+<li><p><code>LongLiteralExpr</code></p>
+</li>
+<li><p><code>NullLiteralExpr</code></p>
+</li>
+<li><p><code>StringLiteralExpr</code></p>
+</li>
+<li><p><code>TextBlockLiteralExpr</code></p>
+<p>Java13的多行字符串，类似于Python中<code>&#39;&#39;&#39;</code>包裹的字符串</p>
+</li>
+</ol>
+<h2 id="Statement-“语句-代码块”"><a href="#Statement-“语句-代码块”" class="headerlink" title="Statement “语句/代码块”"></a>Statement “语句/代码块”</h2><p>难以找到一个中文词语来描述<code>Statement</code>，但可以看看它们的一些共性</p>
+<ul>
+<li><p>有些<code>Statement</code>代表一个以<code>;</code>结束的语句，这类<code>Statement</code>对象内部有个<code>Expression</code>属性</p>
+</li>
+<li><p>有些<code>Statement</code>代表一个大括号代码块，这类<code>Statement</code>对象内部有个<code>Statement</code>列表</p>
+</li>
+</ul>
+<ol>
+<li><p><code>AssertStmt</code></p>
+<p><code>assert</code>开头的断言</p>
+</li>
+<li><p><code>BlockStmt</code></p>
+<p>一整个大括号，内部有个<code>Statement</code>列表</p>
+</li>
+<li><p><code>BreakStmt</code></p>
+<p>就是<code>break;</code></p>
+</li>
+<li><p><code>ContinueStmt</code></p>
+<p>就是<code>continueStmt;</code>或者<code>continue myLabel;</code></p>
+</li>
+<li><p><code>DoStmt</code></p>
+<p>do-while代码块，内部有<code>condition</code>、<code>body</code>两个属性</p>
+</li>
+<li><p><code>EmptyStmt</code></p>
+<p>就是<code>;</code></p>
+</li>
+<li><p><code>ExplicitConstructorInvocationStmt</code></p>
+<p>调用父构造方法的语句</p>
+</li>
+<li><p><code>ExpressionStmt</code></p>
+<p><code>;</code>结尾的表达式语句</p>
+</li>
+<li><p><code>ForEachStmt</code></p>
+<p>for-each代码块，内部有<code>variable</code>、<code>iterable</code>、<code>body</code>三个属性</p>
+</li>
+<li><p><code>ForStmt</code></p>
+<p>for-index代码块，内部有<code>initialization</code>、<code>compare</code>、<code>update</code>、<code>body</code>四个属性</p>
+</li>
+<li><p><code>IfStmt</code></p>
+<p>if-else代码块，内部有<code>condition</code>、<code>thenStmt</code>、<code>elseStmt</code>三个属性</p>
+<p>其中elseStmt还可以是个<code>IfStmt</code>，代表elseif</p>
+</li>
+<li><p><code>LabeledStmt</code></p>
+<p>label代码块</p>
+</li>
+<li><p><code>ReturnStmt</code></p>
+<p>return语句</p>
+</li>
+<li><p><code>SwitchStmt</code></p>
+<p>Switch代码块</p>
+</li>
+<li><p><code>SynchronizedStmt</code></p>
+<p>同步代码块</p>
+</li>
+<li><p><code>ThrowStmt</code></p>
+<p>throw语句</p>
+</li>
+<li><p><code>TryStmt</code></p>
+<p>try-catch语句，内部有<code>tryBlock</code>、<code>catchClause</code>、<code>finallyBlock</code>，以及代表Java7的auto-close的<code>resources</code></p>
+</li>
+<li><p><code>LocalClassDeclarationStmt</code></p>
+<p>方法内的Local类声明</p>
+</li>
+<li><p><code>WhileStmt</code></p>
+<p>while代码块，内部有<code>condition</code>和<code>body</code>两个代码块</p>
+</li>
+<li><p><code>UnparsableStmt</code></p>
+<p>无法解析的语句或者代码块，一般编译能通过的代码，解析不出这种Statement</p>
+</li>
+<li><p><code>YieldStmt</code></p>
+<p>Java12的yield语句</p>
+</li>
+</ol>
+<h2 id="Type-“类型”"><a href="#Type-“类型”" class="headerlink" title="Type “类型”"></a>Type “类型”</h2><p><code>Type</code>的派生类也是个大家族，但它们的命名往往比较直观</p>
+<p>类内部的属性也很简单，一般只有<code>name</code>需要关注，最多是个泛型类型，还有个<code>Type typeArguments</code>属性</p>
+<p>所以这里不列举了</p>
+<h2 id="Comment-“注释”"><a href="#Comment-“注释”" class="headerlink" title="Comment “注释”"></a>Comment “注释”</h2><p><code>Comment</code>只有3个派生类</p>
+<ul>
+<li><code>LineComment</code> 行注释</li>
+<li><code>BlockComment</code> 块状注释</li>
+<li><code>JavadocComment</code>  <code>/**</code>开头的Javadoc风格的注释</li>
+</ul>
+<p>没有特别需要说明的</p>
+<h2 id="Javadoc-“Java-Doc”"><a href="#Javadoc-“Java-Doc”" class="headerlink" title="Javadoc “Java Doc”"></a>Javadoc “Java Doc”</h2><p><code>Javadoc</code>是一个与<code>JavadocComent</code>的不同的类，前者不是<code>Comment</code>的派生类，甚至不是<code>Node</code>的派生类。</p>
+<p>两者的区别，可以以下面两个例子说明——</p>
+<pre><code class="java">/**
+ * JavadocComment对象内部只有一个String content属性，所以它只能表示简单的JavaDoc
+ */</code></pre>
+<pre><code class="java">/**
+ * 这是&lt;code&gt;Javadoc&lt;/code&gt;对象所有代表的注释
+ * &lt;pre&gt;
+ *  1. Javadoc内部属性的类型和层次比较丰富，
+ *  2. 所以可以表示像这个这样的
+ *  3. 复杂JavaDoc
+ * &lt;/pre&gt;
+ *
+ * @author Deolin
+ */</code></pre>
+<p><img src="/images/javaparser-type-01.png" srcset="/img/loading.gif" alt=""></p>
+<p>举个详细点的例子</p>
+<p><img src="/images/javaparser-type-02.png" srcset="/img/loading.gif" alt=""></p>
+<p><img src="/images/javaparser-type-03.png" srcset="/img/loading.gif" alt=""></p>
+<p>可以看出，Java是由内容描述和tags组成的，每个tag是由name、type与内容组成的，内容里的元素又分普通文本与inline标签。</p>
+<p>有了例子以后，还是比较直观的</p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Java/">Java</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Javaparser类型简析&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

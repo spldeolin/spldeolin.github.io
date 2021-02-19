@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>搭建Minecraft服务器 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2018-06-10 06:55
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2018-06-10 06:55</p>
+            
+            <div class="markdown-body">
+              <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST介绍了如何部署一个Minecraft服务器并与好友一起玩耍。</p>
+<p>由于Deolin选用阿里云的CentOS作为部署服务器，所以在开始这篇POST之前，最好能对Linux有一些了解。</p>
+<h2 id="安装Java"><a href="#安装Java" class="headerlink" title="安装Java"></a>安装Java</h2><p>首先要为服务器安装Java，可以参照<a href="http://spldeolin.com/posts/centos-softwares/#JDK">这里</a>。</p>
+<h2 id="Minecraft版本的选择"><a href="#Minecraft版本的选择" class="headerlink" title="Minecraft版本的选择"></a>Minecraft版本的选择</h2><p>这里选择了1.8.8，原因是1.8有了粘液块，pureDB材质包也从1.8开始支持3D方块和3D物品。</p>
+<p>其他版本也是可以的，只要有对应版本的服务端能够选择即可。</p>
+<h2 id="客户端与启动器"><a href="#客户端与启动器" class="headerlink" title="客户端与启动器"></a>客户端与启动器</h2><p>想要启动Minecraft客户端需要<code>.minecraft</code>和启动器，</p>
+<p>从<a href="http://www.mcbbs.net/forum.php?mod=viewthread&tid=38297&page=49&ordertype=1#pid547863" target="_blank" rel="noopener">这篇帖子</a>可以下载到这个版本的<code>.minecraft</code>，</p>
+<p>从<a href="https://github.com/huanghongxun/HMCL/releases" target="_blank" rel="noopener">这个GitHub</a>上可以下载到最新的HMCL启动器。</p>
+<h2 id="材质包"><a href="#材质包" class="headerlink" title="材质包"></a>材质包</h2><p><a href="http://bdcraft.net/purebdcraft-minecraft" target="_blank" rel="noopener">Sphax pureDB &amp; 3D item &amp; 3D block</a></p>
+<blockquote>
+<p>3D item 和 3D block的贴图会变成紫色，非常奇怪</p>
+<p>后来发现256x的pureDB不会发生这个问题。</p>
+<p>64x也不会发生这个问题，似乎只有128x会</p>
+</blockquote>
+<h2 id="1-8-8中文输入补丁"><a href="#1-8-8中文输入补丁" class="headerlink" title="1.8.8中文输入补丁"></a>1.8.8中文输入补丁</h2><ol>
+<li>确保客户端集成了<code>forge</code></li>
+<li><a href="https://github.com/zlainsama/InputFix/releases" target="_blank" rel="noopener">这个GitHub</a>上可以下载到最新的中文输入补丁。</li>
+<li>将补丁放入客户端的<code>mod</code>目录下</li>
+</ol>
+<h2 id="服务端的选择"><a href="#服务端的选择" class="headerlink" title="服务端的选择"></a>服务端的选择</h2><p>对于好友之间玩耍的服务器而言，很多认证、防作弊插件都是不需要的，</p>
+<p>所以简单来说，如果需要集成<code>mod</code>，则选择集成了<code>forge</code>的官方<code>minecraft_server</code>，</p>
+<p>如果不需要集成<code>mod</code>，则选择<code>spigot</code>。</p>
+<h2 id="spigot服务端"><a href="#spigot服务端" class="headerlink" title="spigot服务端"></a>spigot服务端</h2><p><a href="https://getbukkit.org/download/spigot" target="_blank" rel="noopener">https://getbukkit.org/download/spigot</a></p>
+<h2 id="服务端安装forge"><a href="#服务端安装forge" class="headerlink" title="服务端安装forge"></a>服务端安装forge</h2><p>spigot暂时没有找到集成forge的方法，所以选择官方的<code>minecraft_server.jar</code></p>
+<p><a href="https://mcversions.net/" target="_blank" rel="noopener">https://mcversions.net/</a></p>
+<p><a href="https://files.minecraftforge.net/maven/net/minecraftforge/forge/index_1.8.8.html" target="_blank" rel="noopener">https://files.minecraftforge.net/maven/net/minecraftforge/forge/index_1.8.8.html</a></p>
+<p>选择<code>Windows Installer</code></p>
+<p>运行后选择<code>Install client</code>并指定服务端<code>minecraft_server.jar</code>所在的目录</p>
+<h2 id="部署流程"><a href="#部署流程" class="headerlink" title="部署流程"></a>部署流程</h2><ol>
+<li><p>最好在开发环境下<code>java -jar</code>一次，生成一下配置文件</p>
+</li>
+<li><p>第一启动会失败，需要把<code>eula.txt</code>的<code>eula=false</code>改为<code>true</code></p>
+</li>
+<li><p><code>server.properties</code>常用的配置</p>
+<ol>
+<li><p>正版验证</p>
+<pre><code class="properties">online-mode=false</code></pre>
+</li>
+<li><p>PVP</p>
+<pre><code class="properties">pvp=false</code></pre>
+</li>
+</ol>
+</li>
+<li><p>配置完毕后打包成<code>tar.gz</code>上传到服务器</p>
+</li>
+<li><p>服务器解压后执行命令启动</p>
+<pre><code class="shell">$ nohup java -jar -Xmx350m /opt/mc-1.8.8-server/spigot-1.8.8-R0.1.jar &gt; /opt/mc-1.8.8-server/server-consolo.log 2&gt;&amp;1&amp;</code></pre>
+</li>
+<li><p>查看日志</p>
+<pre><code class="shell">$ tail -f /opt/mc-1.8.8-server/logs/latest.log</code></pre>
+</li>
+</ol>
+<h2 id="客户端安装forge"><a href="#客户端安装forge" class="headerlink" title="客户端安装forge"></a>客户端安装forge</h2><p>运行<code>Windows Installer</code>后选择<code>Install server</code>并指定客户端<code>.minecraft</code>目录</p>
+<h2 id="mods集成"><a href="#mods集成" class="headerlink" title="mods集成"></a>mods集成</h2><p>集成了<code>forge</code>之后，绝大多数的<code>mod</code>直接放到<code>mod</code>目录下就可以了，区别在于有些<code>mod</code>服务端也需要集成，有些则不需要，下面是一些简单的经验——</p>
+<ol>
+<li>影响地图生成或是服务器行为<code>mod</code>需要服务端和客户端都集成，如“更多生物群落”、“精英怪“之类的；</li>
+<li>只影响玩家自身的<code>mod</code>只需要客户端集成，如”R键整理“、”小地图“之类的。</li>
+</ol>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Minecraft/">Minecraft</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Minecraft/">Minecraft</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "搭建Minecraft服务器&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  
+  
+  
+  <entry>
+    <title>替换Spring容器中存在的Bean</title>
+    <link href="/posts/spring-replace-bean/"/>
+    <url>/posts/spring-replace-bean/</url>
+    
+    <content type="html"><![CDATA[<p>找到了个方法——用于替换Spring容器中的Bean</p><p>效果是不改变Bean本身，也不改变Bean的调用方</p><pre><code class="java">public interface SomeService {    int doSth();}</code></pre><pre><code class="java">public class SomeServiceImpl implements SomeService {    @Override    public int doSth() {        log.info(&quot;original&quot;);        return 1;    }}</code></pre><p>当没办法修改<code>SomeServiceImpl</code>（比如这个类在别人负责的项目中）</p><p>也不希望修改@Autowired了<code>SomeService</code>的Bean时（因为不希望改动到后者内部的逻辑）</p><p>可以利用@Primary结合继承的方式来替换</p><pre><code class="java">@Primary@Componentpublic class SomeServiceImplEx extends SomeServiceImpl {    @Override    public int doSth() { // 修饰或是直接重写        log.info(&quot;last&quot;);        int superResult = super.doSth();         return -superResult;     }}</code></pre><p><code>SomeServiceImplEx</code>没有影响到Bean本身以及Bean的调用方</p><p>而且只要把<code>SomeServiceImplEx</code>删除，或是去掉它的<code>@Component</code>注解，替换行为就会消失</p><p>实现了解耦</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Spring</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Postman 启动报错 Looks like you’ve used a newer version ...</title>
+    <link href="/posts/postman-launch-error/"/>
+    <url>/posts/postman-launch-error/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>今天碰到了使用Homebrew升级Postman之后，再次启动发生报错的情况，详细错误信息如下</p><blockquote><p>Looks like you’ve used a newer version of the Postman app on this system. Please download the latest app and try again.</p></blockquote><h2 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h2><ol><li><p>卸载Postman</p><pre><code class="shell">brew uninstall postman</code></pre></li><li><p>删除Library目录下的Postman目录</p><pre><code class="shell">cd ~/Library/Application\ Supportrm -rf Postman</code></pre></li><li><p>重新安装Postman</p><pre><code class="shell">brew install postman --cask</code></pre></li></ol><p>问题解决，系统版本是<code>Mac OS 10.15.7</code></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Mac OS</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>报错</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>网站升级计划（2020年末）</title>
+    <link href="/posts/long-strange-trip-upgrade-2020/"/>
+    <url>/posts/long-strange-trip-upgrade-2020/</url>
+    
+    <content type="html"><![CDATA[<p>很久没有维护网站了</p><ul><li><input disabled="" type="checkbox"> <p>初阶的文章太多了，不要那么多，有些文章应该合并</p></li><li><input disabled="" type="checkbox"> <p>存在的错别字</p></li><li><input disabled="" type="checkbox"> <p><code>title</code>的英文与汉字之间需要一个空格</p></li><li><input disabled="" type="checkbox"> <p>重新划分<code>categories</code></p></li><li><input disabled="" type="checkbox"> <p>代码片段试着用<a href="https://carbon.now.sh/" target="_blank" rel="noopener">Carbon</a></p></li><li><input checked="" disabled="" type="checkbox"> <p><code>long-strange-trip</code>下的文件使用title作为文件名</p></li><li><input checked="" disabled="" type="checkbox"> <p>移除微信二维码</p></li></ul><blockquote><p>记住这次行动代号——「少就是多」</p></blockquote>]]></content>
+    
+    
+    <categories>
+      
+      <category>Others</category>
+      
+    </categories>
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Mac OS 命令行与软件备忘</title>
+    <link href="/posts/todo/"/>
+    <url>/posts/todo/</url>
+    
+    <content type="html"><![CDATA[<h2 id="命令行"><a href="#命令行" class="headerlink" title="命令行"></a>命令行</h2><ol><li><p>阿里云Homebrew镜像</p><pre><code class="shell">ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;cd &quot;$(brew --repo)&quot;git remote set-url origin https://mirrors.aliyun.com/homebrew/brew.git# 替换homebrew-core.git:cd &quot;$(brew --repo)/Library/Taps/homebrew/homebrew-core&quot;git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-core.git# 应用生效brew update# 替换homebrew-bottles:echo &#39;export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles&#39; &gt;&gt; ~/.zshrcsource ~/.zshrc</code></pre></li><li><p>安装Oh my zsh</p><pre><code class="shell">zsh --versionchsh -s /bin/zshsh -c &quot;$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;</code></pre></li><li><p>对当前目录下的每个目录，执行git pull，不递归</p><pre><code class="shell">for i in */.git; do ( echo $i; cd $i/..; git pull; ); done</code></pre></li><li><p>查看IP</p><pre><code class="shell"># 内网ifconfig | grep &quot;inet &quot; | grep -v 127.0.0.1</code></pre></li><li><p>查看端口占用</p><pre><code>lsof -i tcp:80</code></pre></li><li><p>查询日志</p><pre><code class="shell"># 根据关键字cat INFO.log | grep -n &#39;keyword&#39;</code></pre><pre><code class="shell"># 根据行cat INFO.log | tail -n +23333 | head -n 10</code></pre><pre><code class="shell"># 最近的日志，可滚动tail -f -n -500 INFO.log</code></pre></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Memorandum</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Mac OS</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>如何在Maven项目中引入外部jar？</title>
+    <link href="/posts/maven-external-jar/"/>
+    <url>/posts/maven-external-jar/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>开发时有时候会需要在项目中引入外部的jar，这些jar并不是一个Maven依赖，所以需要一些特殊的方法来引入。</p><h2 id="步骤一"><a href="#步骤一" class="headerlink" title="步骤一"></a>步骤一</h2><p>在项目的根目录下新建<code>lib</code>目录，将jar移动到这个目录下</p><p>（假设这个jar文件名是AAA-0.0.1-SNAPSHOT.jar）</p><h2 id="步骤二"><a href="#步骤二" class="headerlink" title="步骤二"></a>步骤二</h2><p>在pom.xml的dependencies标签下中追加代码片段</p><pre><code class="xml">        &lt;dependency&gt;            &lt;groupId&gt;AAA&lt;/groupId&gt; &lt;!-- 随便填 --&gt;            &lt;artifactId&gt;AAA&lt;/artifactId&gt; &lt;!-- 随便填 --&gt;            &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt; &lt;!-- 随便填 --&gt;            &lt;scope&gt;system&lt;/scope&gt;            &lt;systemPath&gt;${basedir}/lib/AAA-0.0.1-SNAPSHOT.jar&lt;/systemPath&gt;        &lt;/dependency&gt;</code></pre><p>groupId、artifactId、version均可以随便填，但必须确保三者的组合不与maven远程仓库中的依赖冲突。</p><p>例如，显然不能将三者指定为<strong>org.apache.commons</strong>、<strong>commons-lang3</strong>、<strong>3.7</strong>的组合，因为这个Maven座标已被占用了</p><p><strong>注意Reimport一下</strong></p><h2 id="步骤三"><a href="#步骤三" class="headerlink" title="步骤三"></a>步骤三</h2><p>如果是个Spring Boot项目，还需要配置一下<code>spring-boot-maven-plugin</code>插件</p><pre><code class="xml">    &lt;plugins&gt;        &lt;plugin&gt;            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;            &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;            &lt;configuration&gt;                &lt;includeSystemScope&gt;true&lt;/includeSystemScope&gt; &lt;!-- 这个属性必须为TURE --&gt;            &lt;/configuration&gt;        &lt;/plugin&gt;    &lt;/plugins&gt;</code></pre><p>至此，引入完毕</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>FAQ</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>获取RequestBody的JSON中未知的字段</title>
+    <link href="/posts/warn-unknown-properties/"/>
+    <url>/posts/warn-unknown-properties/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Spring MVC默认的使用Jackson作为将JSON序列化@RequestBody对象的实现。</p><p>而在实际的web开发时，往往会对Jackson进行这样的配置</p><pre><code class="java">new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)</code></pre><p>这样做的目的为了确保接口的API适配性，即API只需要自己所需要的字段，对于<strong><u>不认识的字段</u></strong>，也不快速失败，仅仅是无视</p><p>这样做的好处是一个标准的API可以被多个地方所复用，只要调用方至少能提供API所需的参数即可。</p><h2 id="引发的问题"><a href="#引发的问题" class="headerlink" title="引发的问题"></a>引发的问题</h2><p>这样做会产生一个问题，如果字段名搞错了，就会出现——一个选填项，明明在页面上面填了，但是没有保存到数据库的情况，因为前端提供的字段名与后端所需的字段名不一致。</p><p>这是一个简单的BUG，但很难快速被第一时间发现</p><h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>现在，提供一个“快速警告”的方式。能够在<strong><u>每次请求时，获取到所有后端服务不认识的字段</u></strong></p><ol><li><p>定义一个线程上下文，用于为请求保存请求报文中不认识的字段</p><pre><code class="java">public class RequestTrack {    private static final ThreadLocal&lt;RequestTrack&gt; context = ThreadLocal.withInitial(RequestTrack::new);    private RequestTrack() {    }    public static RequestTrack getCurrent() {        return context.get();    }    public static void removeCurrent() {        context.remove();    }        private transient Map&lt;String, String&gt; unrecognizedRequestBodyProperties = Maps.newHashMap();}</code></pre></li></ol><ol start="2"><li><p>让所有ReqDto都继承2个方法</p><pre><code class="java">public abstract class ReqDtoAncestor {    @JsonAnyGetter    public Map&lt;String, String&gt; any() {        return RequestTrack.getCurrent().getUnrecognizedRequestBodyProperties();    }    @JsonAnySetter    public void set(String name, String value) {        RequestTrack.getCurrent().getUnrecognizedRequestBodyProperties().put(name, value);    }}</code></pre></li></ol><ol start="3"><li><p>在BaseRespDto中新增一个方法，方法必须是get开头，这个做法会使这个方法在序列化成JSON被视为一个字段</p><pre><code class="java">public class BaseRespDto&lt;T&gt; {    private Boolean successOrNot;    private T data;    private String errorMessage;    public Map&lt;String, String&gt; getUnrecognizedRequestBodyProperties() {            RequestTrack currentRequestTrack = RequestTrack.getCurrent();            if (currentRequestTrack != null) {                return currentRequestTrack.getUnrecognizedRequestBodyProperties();            }            return Maps.newHashMap();      }    // ignore getter and setters}</code></pre></li></ol><ol start="4"><li>至此，每次请求时，所有后端API不认识的字段，都会在返回值的<code>unrecognizedRequestBodyProperties</code>中显示出来，已作为对前端开发者的一种“快速警告”</li></ol><p>整个方案的核心是<code>com.fasterxml.jackson.annotation.JsonAnySetter</code>和<code>com.fasterxml.jackson.annotation.JsonAnyGetter</code>注解。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Jackson</tag>
+      
+      <tag>Spring MVC</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Alfred 4 无法搜索到应用的解决方式</title>
+    <link href="/posts/alfred-4-cannot-find-app/"/>
+    <url>/posts/alfred-4-cannot-find-app/</url>
+    
+    <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><ol><li>由于有了Alfred，Mac OS自带的hotspot已经被Deolin禁用了</li><li>一开始的现象是部分app搜不到</li><li>尝试在Alfred偏好中，点击了<code>Advanced</code>- <code>Rebuild macOS Metadata</code>并重启，结果是所有app都搜不到了….</li><li>经过网上搜索，找到了一个解放方式</li></ol><h2 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h2><pre><code class="shell">$ sudo mdutil -a -i onPassword:/:    Indexing enabled./System/Volumes/Data:    Indexing enabled.</code></pre><p>命令执行完毕后就好了，无需重启</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Mac OS</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Mac OS</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>如何删除Github上的commit历史？</title>
+    <link href="/posts/how-to-delete-commit-log/"/>
+    <url>/posts/how-to-delete-commit-log/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>如果你遇到了以下描述的问题，可以参考这篇POST来解决</p><h2 id="问题重现"><a href="#问题重现" class="headerlink" title="问题重现"></a>问题重现</h2><p>使用Github做版本控制时，不慎将不希望公开的信息commit &amp; push到Github上了，之后虽然马上删了这部分信息并重新commit &amp; push了，但这部分信息一直存在在Github的commit历史中了</p><p>现在希望把这次commit的历史记录也删除</p><h2 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h2><ol><li><p>定位到那次不慎操作的commit id，并记录下这个commit id的上一次commit的id</p></li><li><p>使用git reset命令重置版本</p><pre><code class="shell">$ git reset --hard [记录下的commit id]</code></pre></li><li><p>强制push</p><pre><code class="shell">$ git push origin HEAD --force</code></pre></li><li><p>完毕。至此，版本被回退到了记录下的那次commit，之后的commit历史全部没有了。</p></li></ol><h2 id="需要注意的地方"><a href="#需要注意的地方" class="headerlink" title="需要注意的地方"></a>需要注意的地方</h2><ol><li><p>被“删除”的commit历史不是真正地被删除，真正被删除的是commit与仓库的关联关系，即通过仓库再也无法找到那次commit，但如果保留了commit id，依然能通过地址来访问到那次commit</p><pre><code class="http">https://github.com/用户名/仓库名/commit/被删除的commit id/</code></pre></li><li><p>越早发现不慎的commit &amp; push越好，越晚发现代表越多的改动会被回退，期间的commit历史也全部会被删除</p></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Git</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Git</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Maven常用命令</title>
+    <link href="/posts/maven-commandline/"/>
+    <url>/posts/maven-commandline/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST将会收录并经常更新一些常用的Maven命令</p><h2 id="1-把Maven项目发布到本地仓库"><a href="#1-把Maven项目发布到本地仓库" class="headerlink" title="1. 把Maven项目发布到本地仓库"></a>1. 把Maven项目发布到本地仓库</h2><pre><code class="shell">mvn clean install source:jar install -DskipTests -Dmaven.javadoc.skip=true \-s /Users/deolin/OneDrive/secret/xxx-settings.xml \-f /Users/deolin/Documents/project-repo/xxx-org/yyy-project/pom.xml</code></pre><h4 id="简要说明"><a href="#简要说明" class="headerlink" title="简要说明"></a>简要说明</h4><ul><li><p><code>install source:jar install</code>代表了对<code>install</code>和<code>source:jar install</code>两个命令的组合，<code>source:jar install</code>代表了将代码打包成jar文件并发布到本地</p></li><li><p><code>-DskipTests</code>代表跳过测试阶段</p></li><li><p><code>-Dmaven.javadoc.skip=true</code>代表不生成Javadoc文档</p></li><li><p><code>-s path</code>的path代表maven全局settings.xml文件</p></li><li><p><code>-f path</code>的path代表需要被发布项目的pom.xml文件</p></li></ul><h4 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h4><p>如果对一个被依赖的项目A进行了一些代码的修改，这些修改commit&amp;push了但需要调试后才能发布到私服。</p><p>此时如果想要让依赖了项目A的项目B能够应用到这些改动，那么可以使用这个命令</p><h2 id="2-下载所有依赖的源码"><a href="#2-下载所有依赖的源码" class="headerlink" title="2. 下载所有依赖的源码"></a>2. 下载所有依赖的源码</h2><pre><code>mvn dependency:sources \-s /Users/deolin/OneDrive/secret/xxx-settings.xml \-f /Users/deolin/Documents/project-repo/xxx-org/yyy-project/pom.xml</code></pre><h4 id="简要说明-1"><a href="#简要说明-1" class="headerlink" title="简要说明"></a>简要说明</h4><ul><li>“所有”只的是pom文件中声明的所有依赖，“下载”指的是从私服下载到本地仓库</li><li><code>-s path</code>的path代表maven全局settings.xml文件</li><li><code>-f path</code>的path代表目标项目的pom.xml文件</li></ul><h4 id="适用场景-1"><a href="#适用场景-1" class="headerlink" title="适用场景"></a>适用场景</h4><p>这个命令可以代替IntelliJ IDEA的<code>右键项目</code> -&gt; <code>Maven</code> -&gt; <code>Download Sources</code>操作，好处是可以看到下载日志，而且项目多时可以在命令行批量操作，无需依次用IDEA打开</p><h2 id="3-将依赖的jar从本地仓库拷贝出来"><a href="#3-将依赖的jar从本地仓库拷贝出来" class="headerlink" title="3. 将依赖的jar从本地仓库拷贝出来"></a>3. 将依赖的jar从本地仓库拷贝出来</h2><pre><code>mvn dependency:copy-dependencies \-DoutputDirectory=/Users/deolin/Documents/project-repo/jars -DincludeScope=compile=runtime \-s /Users/deolin/OneDrive/secret/xxx-settings.xml \-f /Users/deolin/Documents/project-repo/xxx-org/yyy-project/pom.xml</code></pre><h4 id="简要说明-2"><a href="#简要说明-2" class="headerlink" title="简要说明"></a>简要说明</h4><ul><li>这个命令的所用是在本地仓库找出所有目标项目依赖的jar文件，并拷贝出来</li><li><code>-DoutputDirectory=</code>代表jar会被拷贝到这个目录</li><li><code>-s path</code>的path代表maven全局settings.xml文件</li><li><code>-f path</code>的path代表目标项目的pom.xml文件</li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Maven</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>在Python中使用数据传输类（DTO）</title>
+    <link href="/posts/python-dto/"/>
+    <url>/posts/python-dto/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>最近写了一些复杂的脚本，编写过程中逐渐发现了Python中的<code>dict</code>虽然很灵活简便，但一旦脚本中的数据结构复杂了，<code>key</code>就需要统一管理起来了，否则需要不断地看代码的上下文来确定这个<code>dict</code>对象有哪些<code>key</code></p><p>这个时候使用<code>DTO</code>比较好，因为声明<code>DTO</code>时需要直接声明类中有哪些<code>field</code>，后续使用dto时可以直接通过IDE的只能提示来使用属性</p><h2 id="namedtuple"><a href="#namedtuple" class="headerlink" title="namedtuple"></a>namedtuple</h2><p>Python提供了一种特殊的元组——<code>namedtuple</code>，用于快速声明一个DTO，<code>namedtuple</code>位于<code>collections</code>模块。</p><p>使用示例如下</p><pre><code class="python"># coding=utf-8from collections import namedtupleUserDto = namedtuple(&quot;UserDto&quot;, &quot;id name age address&quot;)AddressDto = namedtuple(&quot;AddressDto&quot;, &quot;provice city&quot;)user = UserDto(1231231, &#39;汉字&#39;, 17, AddressDto(&#39;浙江&#39;, city=&#39;杭州&#39;))print(user) # UserDto(id=1231231, name=&#39;汉字&#39;, age=17, address=AddressDto(provice=&#39;浙江&#39;, city=&#39;杭州&#39;))print(user.address.city) # 杭州</code></pre><h2 id="namedtuple的优势"><a href="#namedtuple的优势" class="headerlink" title="namedtuple的优势"></a>namedtuple的优势</h2><p><img src="/images/python-dto-01.png" srcset="/img/loading.gif" alt=""></p><p><img src="/images/python-dto-02.png" srcset="/img/loading.gif" alt=""></p><p>能够自动提示有哪些<code>field</code>，而不用像dict那样需要去想上文中使用了什么<code>key</code></p><h2 id="JSON序列化"><a href="#JSON序列化" class="headerlink" title="JSON序列化"></a>JSON序列化</h2><pre><code class="python">serialized = json.dumps(user._asdict(), ensure_ascii=False)print(serialized) # {&quot;id&quot;: 1231231, &quot;name&quot;: &quot;汉字&quot;, &quot;age&quot;: 17, &quot;address&quot;: [&quot;浙江&quot;, &quot;杭州&quot;]}</code></pre><p>需要注意的是，<code>namedtuple</code>方法返回的是<code>a new subclass of tuple with named fields</code>，即它是一个元组，直接<code>json.dumps</code>会当作一个数组来数列化，如果需要序列化以后的现象与一个DTO一致，那么需要多做一步<code>_asdict()</code>操作</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Python</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Python</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>解决使用Javaparser解析大量项目产生的OOM问题</title>
+    <link href="/posts/allison1875-oom/"/>
+    <url>/posts/allison1875-oom/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>最近，Allison1875碰到了一个问题，它在为1个分布式系统处理源码时，出现了OOM的情况，这个分布式系统的源码有60多个project，其下有共340多个module。</p><p>在这样的量级下，4G的内存完全不够用，而Allison1875作为一个在本地开发环境使用的源码工具，也能难为其分配更大的内存，也不应该因为目标项目增加而无限制地为其分配更大的内存。这样的限制是符合直觉的，显然使用IDE同时打开60+多个project也是困难的。</p><h2 id="问题所在"><a href="#问题所在" class="headerlink" title="问题所在"></a>问题所在</h2><p>原先，Allison1875解析一个项目的流程是这样的</p><ol><li>使用<code>CollectionStrategy</code>对象（使用哪种实现取决与是否开启类加载），收集到项目路径下的所有<code>SourceRoot</code><ul><li>关于类加载， 如果开启了类加载，<code>CollectionStrategy</code>会选用<code>SymbolSolverCollectionStrategy</code>作为实现。这需要用户先对项目进行打包，再使用Allison1875，Allison1875运行后会先解压这个jar文件，然后获取jar内包含的classpath和每个lib的路径，构造出一个<code>URLClassLoader</code>对象用于先后构造<code>ClassLoaderTypeSolver</code>和<code>SymbolSolverCollectionStrategy</code>对象</li></ul></li><li>对每个<code>SourceRoot</code>调用<code>tryToParse</code>方法，收集到每个SourceRoot下的所有<code>CompilationUnit</code>（<code>CU</code>）</li><li>所有<code>CU</code>保存到<code>AstContainer</code>中，后者还提供了许多API用于根据全限定名查询<code>CU</code>下的各种AST节点</li></ol><p>这个方案最大的优点是将整片AST森林直接加载进了内存，只需要全项目解析一次即可，节省时间。</p><p>这个方案最大的缺点是，没有考虑到一旦项目多了，大量CU堆积，每个CU下因为词法解析而产生的Range和Token对象会让内存受不了，事实上这两类对象是OOM时堆内占比最大的类型</p><p>这个方案在类加载方面还存在一粗糙的地方。项目之间，甚至module之间都用可能依赖不同版本的lib，不应该全部收集在起来构造一个巨大的ClassLoader，一旦项目多了，一定会出现版本问题。</p><h2 id="解决思路"><a href="#解决思路" class="headerlink" title="解决思路"></a>解决思路</h2><p>Deolin在最近几天已经重构了Allison1875的base模块的collection包，基本解决了OOM问题，这篇POST会讲一下重构的思路和几个比较关键的要点</p><ul><li><p>使用游标方式代替加载整个森林的方式。游标对象每次调用<code>next</code>只能获取一个<code>SourceRoot</code>下的下一个CU，如果这个<code>SourceRoot</code>下所有<code>CU</code>都被迭代过了，调用下一个<code>SourceRoot</code>的<code>tryToParse</code>方法，释放对上一个<code>SourceRoot</code>和其下<code>CU</code>的引用，即确保Ast游标只保存一个SourceRoot下的所有<code>CU</code>，如果这还能OOM，那么这个项目平时是怎么使用IDE进行开发的？</p><p><strong>注意这里一定要释放掉上一个<code>SourceRoot</code>，因为<code>SourceRoot</code>对象下的cache属性，持有的所有解析出的<code>CU</code>，不释放的话，CU依然会在堆内堆积</strong></p></li><li><p>关于类加载。这次改造成了为每个SourceRoot都构建一个ClassLoader，因为一个pom文件内不可能依赖多个版本的同个lib。新的ClassLoaderFactory的实现被设计成了通过classpath和lib.jar的path来构造ClassLoader对象的形式，因为classpath除非项目移动位置了，否则不会变，lib.jar的path除非pom.xml更新了，否则也不会变。这样设计的好处是Allison1875启用类加载时不需要解压jar包了，也不需要用户手动打包了。</p></li><li><p>通过一个新的Tool来生成classpath和lib.jar，上一点提到了使用classpath和lib.jar两个信息，但是要让用户去统计每个project的每个module的这两个信息显然是不合适的，虽然两者基本不太会变动。更合理的方式是通过一个Tool，来执行<code>dependency:copy-dependencies</code>和<code>clean compile</code>两个命令，产生classpath和lib.jar的path两个信息，然后制成yaml配置的片段，提供给base-config.yaml</p></li><li><p>原先的<code>AstContainer</code>的机制依然可以保留，不过现在只保存一个SourceRoot下的AST节点，可能没什么必要了</p></li></ul><h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>这篇POST只是描述了几个要点，所有的重构工作已经完成，反映在Github项目仓库中了。</p><p>这个问题的产生，真正地印证了两句话</p><blockquote><p>数据量/并发量 大了，将会面对许多之前直觉上觉得不会产生的问题。</p></blockquote><blockquote><p>定位到OOM的源头后，更大的挑战是定位源头对象在什么地方没有及时释放引用。</p></blockquote>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Javaparser</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>命名用词</title>
+    <link href="/posts/naming-words/"/>
+    <url>/posts/naming-words/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>用于命名的单词一览，个人向，持续更新</p><h2 id="单词一览"><a href="#单词一览" class="headerlink" title="单词一览"></a>单词一览</h2><ul><li><p><code>get</code>  <code>set</code></p><p>不使用这2个单词，因为POJO的Setter和Getter已经足够多了</p></li><li><p><code>obtain</code>  <code>find</code></p><p>获取（都表示获取一个或多个）</p></li><li><p><code>isXxx</code>  <code>xxxOrNot</code>  <code>hasXxx</code>  <code>canXxx</code></p><p>用于布尔类型的属性、变量或是返回布尔类型的短方法</p></li><li><p><code>estimate</code></p><p>判断（用于返回布尔类型的长方法）</p></li><li><p><code>ensure</code></p><p>确保某件事，如果不满足则抛出异常</p></li><li><p><code>xxxMight</code></p><p>方法内部可能什么都不做</p></li><li><p><code>build</code></p><p>new一个对象，初始化后返回</p></li><li><p><code>from</code></p><p>构造一个对象，参数是一个DTO，内部可以包含了若干次setXx(getXx())</p></li><li><p><code>of</code></p><p>构造一个对象，参数有多个，内部可以包含若干次setXx(…)</p></li><li><p><code>begin</code>、<code>end</code></p><p>开始、结束（start听上去更像是在操作线程，所以不使用）</p></li><li><p><code>save</code></p><p>落到磁盘（指内部进行了一次或若干次insert、update、delete）</p></li><li><p><code>create</code></p><p>以insert为主的save</p></li><li><p><code>extract</code></p><p>提取，指list.stream().map().collect()</p></li><li><p><code>collectIntoMap</code></p><p>指List→Map</p></li><li><p><code>increase</code>、<code>decrease</code></p><p>增减</p></li><li><p><code>increment</code>、<code>decrement</code></p><p>增减量，均为正数</p></li><li><p><code>result</code></p><p>在方法内部声明用于表示返回值，最后一次调用一定是return result;</p></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Spring事务的7种传播级别</title>
+    <link href="/posts/spring-tx-propagation/"/>
+    <url>/posts/spring-tx-propagation/</url>
+    
+    <content type="html"><![CDATA[<h2 id="1-REQUIRED级别"><a href="#1-REQUIRED级别" class="headerlink" title="1. REQUIRED级别"></a>1. REQUIRED级别</h2><ul><li>如果没有专门指定，<code>REQUIRED</code>会是默认的传播级别</li><li>如果外层存在一个事务，则加入到外层事务中；否则自己新建一个事务</li></ul><pre><code class="java">OuterService {  @Tx  method() {      saveIntoDB(); // rollback      innerService.method();       int b = 1 / 0;  }}InnerService {    @Tx(REQUIRED)    method() {        saveIntoDB(); // rollback    }}</code></pre><h2 id="2-SUPPORTS级别"><a href="#2-SUPPORTS级别" class="headerlink" title="2. SUPPORTS级别"></a>2. SUPPORTS级别</h2><ul><li>如果外层存在一个事务，则加入到外层事务中；否则非事务执行，就当没这个注解</li></ul><pre><code class="java">OuterService {    method() {        innerService.method();    }}InnerService {    @Tx(SUPPORTS)    method() {        saveIntoDB(); // not rollback        int b = 1 / 0;    }}</code></pre><h2 id="3-MANDATORY级别"><a href="#3-MANDATORY级别" class="headerlink" title="3. MANDATORY级别"></a>3. MANDATORY级别</h2><ul><li><p>如果外层存在一个事务，则加入到外层事务中；否则一调用就抛出异常，执行不到内层方法</p><p><code>org.springframework.transaction.IllegalTransactionStateException: No existing transaction found for transaction marked with propagation &#39;mandatory&#39;</code></p></li></ul><h2 id="阶段性总结"><a href="#阶段性总结" class="headerlink" title="阶段性总结"></a>阶段性总结</h2><p><code>PROPAGATION_REQUIRED</code>、<code>PROPAGATION_SUPPORTS</code>、<code>PROPAGATION_MANDATORY</code>这三个传播级别碰到外层存在事务时处理方式是一致的，都是加入到外层事务；区别在于外层没事务时的处理方式。</p><h2 id="4-REQUIRES-NEW级别"><a href="#4-REQUIRES-NEW级别" class="headerlink" title="4. REQUIRES_NEW级别"></a>4. REQUIRES_NEW级别</h2><ul><li>如果外层不存在事务，新建事务</li><li>如果外层存在事务，挂起外层事务，本层新建一个事务，执行完返回后直接提交，外层如果后续再抛异常，不回滚内层。</li><li>适用场景：使用一个方法记录操作日志，无论外层后续是否失败，操作日志都不应该回滚，因为这次操作客观发生过，只不过失败了。</li></ul><pre><code class="java">OuterService {  @Tx  method() {      saveIntoDB(); // rollback      innerService.method();       int b = 1 / 0;  }}InnerService {    @Tx(REQUIRED_NEW)    method() {        saveIntoDB(); // not rollback    }}</code></pre><h2 id="5-NOT-SUPPORTED级别"><a href="#5-NOT-SUPPORTED级别" class="headerlink" title="5. NOT_SUPPORTED级别"></a>5. NOT_SUPPORTED级别</h2><ul><li>“如果外层不存在事务，不新建事务”版的<code>PROPAGATION_REQUIRES_NEW</code></li></ul><h2 id="6-NEVER级别"><a href="#6-NEVER级别" class="headerlink" title="6. NEVER级别"></a>6. NEVER级别</h2><ul><li>“如果外层不存在事务，不新建事务”版的<code>PROPAGATION_MANDATORY</code></li></ul><h2 id="7-NESTED级别"><a href="#7-NESTED级别" class="headerlink" title="7. NESTED级别"></a>7. NESTED级别</h2><ul><li>如果外层不存在事务，新建事务</li><li>如果外层存在事务，也是单独提交单独回滚，不过内层会利用外层的<code>savepoint</code>来进行回滚，内层需要回滚时，只需回滚到指定<code>log</code>的位置，不需要新建连接，开销很低</li><li>适用场景：批量处理数据时，有一趟失败了，只回滚这一趟，不影响其他。这个场景不使用<code>PROPAGATION_REQUIRES_NEW</code>的原因是后者开销比较大</li></ul><pre><code class="java">OuterService {  @Tx  method() {        for (            try {                innerService.method();             } catch (e) {                log.error(e);            }        )    }}InnerService {    @Tx(NESTED)    method() {        saveIntoDB();        if (new Random().nextBoolean()) {            int b = 1 / 0;        }    }}</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>NEW</code>和<code>NESTED</code>比较特殊，都是外层异常不回滚内层的传播级别，区别在于开销的高低</p><h2 id="写这篇POST时遇到的一个问题"><a href="#写这篇POST时遇到的一个问题" class="headerlink" title="写这篇POST时遇到的一个问题"></a>写这篇POST时遇到的一个问题</h2><p>事务方法必须是<code>public</code>的，否则事务将会失效</p><pre><code class="java">//~ com.spldeolin.tx.TxController.java    @GetMapping(&quot;/tx&quot;)    Object tx() {        txService.working(&quot;演示1&quot;);        txService.notWorking(&quot;演示2&quot;);        return null;    }//~ com.spldeolin.tx.TxService.java  // 这个类没有实现接口，与TxController在同一包下，所以notWorking方法能被调用    @Transactional    public void working(String a) {        BizDemoEntity bizDemo = new BizDemoEntity();        bizDemo.setName(a);        bizDemoMapper.insert(bizDemo);        if (true) {            throw new RuntimeException(&quot;something happened.&quot;);        }    }    @Transactional    void notWorking(String a) {        BizDemoEntity bizDemo = new BizDemoEntity();        bizDemo.setName(a);        bizDemoMapper.insert(bizDemo);        if (true) {            throw new RuntimeException(&quot;something happened.&quot;);        }    }</code></pre><p>在这个示例中，数据<code>演示1</code>被回滚了，而<code>演示2</code>没有被回滚，因为notWorking方法的事务注解没有生效。</p><h3 id="为什么会出现这个问题？"><a href="#为什么会出现这个问题？" class="headerlink" title="为什么会出现这个问题？"></a>为什么会出现这个问题？</h3><p>Spring的声明式事务是通过AOP实现，有一个名为<code>AbstractAutoProxyCreator</code>的<code>BeanPostProcessor</code>，是用来专门生成代理对象的组件，他会对所有声明了@Transactional的类进行动态代理。</p><p>Spring AOP有一个原则，如果被代理类实现接口，那么使用JDK Proxy的方式进行动态代理；否则使用CGlib的方式进行动态代理。</p><p>这个示例中的<code>TxService</code>没有实现接口，那么Spring AOP会使用CGlib，CGlib的原理是通过生成一个 Override了被代理类所有方法 的派生类，来实现对方法的拦截的。</p><p>CGlib想要能够Override一个package-private的方法，必须要将派生类生成在被代理类所在的包，这对CGlib而言是可以做到的，但它没有那么设计，因为代理模式的理念是“外部”调用内部才会被“拦截”，package-private算是一个内部的方法，所以protected方法不会被拦截，这样的设计与JDK Proxy代理时的结果也是一致的。</p><h3 id="怎么解决和避免这个问题？"><a href="#怎么解决和避免这个问题？" class="headerlink" title="怎么解决和避免这个问题？"></a>怎么解决和避免这个问题？</h3><p>永远把<code>@Transactional</code>声明在一个<code>public</code>方法上而不是其他访问权限的方法上。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Spring</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>MacOS Excel CSV文件乱码问题</title>
+    <link href="/posts/macos-excel-csv/"/>
+    <url>/posts/macos-excel-csv/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>在Mac OS操作系统使用Microsoft Excel打开一个CSV文件时，里面的中文变成了生僻字乱码，是一个常见的正常现象。</p><h2 id="环境层面存在的问题"><a href="#环境层面存在的问题" class="headerlink" title="环境层面存在的问题"></a>环境层面存在的问题</h2><p>在Mac OS，Microsoft Excel使用的是<code>GBK</code>编码，这是个客观的事实。（finder的空格预览功能使用的是<code>UTF-8</code>）</p><p>换句话说，代码将逗号分割的字符串，按<code>UTF-8</code>的编码，输出到一个csv文件中，那么在Mac OS使用Microsoft Excel打开后，中文一定是乱码。你的代码没有问题，你理应使用<code>UTF-8</code>编码输出。</p><h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>在开发<strong>导出CVS</strong>这类的功能时，你很难确定用户所处的操作系统，更难确定用户用什么软件来打开。</p><p>可以考虑生成两份文件打包成<code>zip</code>文件导出，一份用<code>UTF-8</code>编码，一份用<code>GBK</code>，以作兼容。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Mac OS</tag>
+      
+      <tag>Java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Javaparser类型简析</title>
+    <link href="/posts/javaparser-type/"/>
+    <url>/posts/javaparser-type/</url>
+    
+    <content type="html"><![CDATA[<h2 id="BodyDeclaration-“声明”"><a href="#BodyDeclaration-“声明”" class="headerlink" title="BodyDeclaration “声明”"></a>BodyDeclaration “声明”</h2><ol><li><p><code>AnnotationDeclaration</code></p><pre><code class="java">public @interface JedisOperation {    ...}</code></pre></li><li><p><code>AnnotationMemberDeclaration</code></p><pre><code class="java">boolean paramInReturned() default false; // @interface里的属性</code></pre></li><li><p><code>ClassOrInterfaceDeclaration</code></p><pre><code class="java">public class Student {    ...}</code></pre><pre><code class="java">public interface payable {    ...}</code></pre></li><li><p><code>ConstructorDeclaration</code></p><pre><code class="java">    public BaseBizException() { // 构造方法        ...    }</code></pre></li><li><p><code>EnumConstantDeclaration</code></p><pre><code class="java">    SPRING(1, &quot;spring&quot;), // 枚举元素</code></pre></li><li><p><code>EnumDeclaration</code></p><pre><code class="java">public enum FourSession {    ...}</code></pre></li><li><p><code>FieldDeclaration</code></p><pre><code class="java">    private List&lt;StudentDTO&gt; students;</code></pre></li><li><p><code>InitializerDeclaration</code></p><pre><code class="java">    { // 构造代码块         ...    }</code></pre><pre><code class="java">    static { // 静态代码块        ....    }</code></pre></li><li><p><code>MethodDeclaration</code></p><pre><code class="java">    private void doSomething(Long userId) {         ...    }</code></pre><pre><code class="java">    public abstract onSuccess(Long userId);</code></pre></li><li><p><code>PackageDeclaration</code></p><pre><code class="java">package com.spldeolin.demo.entity;</code></pre></li><li><p><code>VariableDeclarator</code></p><pre><code class="java">    userService // 处于 @Autowired private UserService userService;中</code></pre><pre><code>    i = 0 // 处于for (int i = 0; i &lt; size; i ++)中</code></pre></li><li><p><code>ImportDeclaration</code></p><pre><code class="java">import com.spldeolin.demo.entity.UserEntity;</code></pre></li><li><p><code>ModuleDeclaration</code></p><p>Java9的“模块”</p><p><code>ModuleDeclaration</code>不是<code>BodyDeclaration</code>的派生类</p></li></ol><h2 id="Expression-“表达式”"><a href="#Expression-“表达式”" class="headerlink" title="Expression “表达式”"></a>Expression “表达式”</h2><ol><li><p><code>ArrayAccessExpr</code></p><p>数组对象+中括号下标</p></li><li><p><code>ArrayCreationExpr</code></p><p>通过指定个数或者指定所有元素的方式new一个数组</p></li><li><p><code>ArrayInitializerExpr</code></p><p>指定数组元素时的整个大括号</p></li><li><p><code>AssignExpr</code></p><pre><code class="java">a = 5</code></pre></li><li><p><code>BinaryExpr</code></p><pre><code class="java">a + 1</code></pre></li><li><p><code>CastExpr</code></p><pre><code class="java">(long) 15</code></pre></li><li><p><code>ClassExpr</code></p><p>例如：<code>UserEntity.class</code></p></li><li><p><code>ConditionalExpr</code></p><pre><code class="java">if (a)</code></pre></li><li><p><code>EnclosedExpr</code></p><p>整个小括号</p></li><li><p><code>FieldAccessExpr</code></p><p>访问field（包含<code>this</code>关键字）</p></li><li><p><code>InstanceOfExpr</code></p><p>例如：<code>userDTO instaceof BaseDTO</code></p></li><li><p><code>MarkerAnnotationExpr</code></p><p>例如：<code>@Override</code></p></li><li><p><code>MethodCallExpr</code></p><p>方法调用（链式调用一整句话算一个<code>MethodCallExpr</code>对象）</p></li><li><p><code>NameExpr</code></p><ul><li><p>最基础的<code>Expression</code>，代表变量名、属性名、package名等等等…</p></li><li><p>很多<code>Expression</code>内部都是由若干个<code>NameExpr</code>组成，例如，一个非链式调用的<code>MethodCallExpr</code>对象，内部有一个<code>NameExpr scope</code>属性，代表点号左侧那个被调用方名称；再例如，<code>FieldAccessExpr</code>内部有个<code>NameExpr name</code>属性，代表field的名称</p></li><li><p><code>NameExpr</code>内部只有个<code>SimpleName</code>类型的属性，后者是个最基础的<code>Node</code></p></li></ul></li><li><p><code>NormalAnnotationExpr</code></p><pre><code class="java">@Max(value = 1, message = &quot;不能超过1&quot;)</code></pre></li><li><p><code>ObjectCreationExpr</code></p><p>new对象</p></li><li><p><code>SingleMemberAnnotationExpr</code></p><p>例如：<code>@JsonProperty(&quot;started_at&quot;)</code></p></li><li><p><code>SuperExpr</code></p><p>就一个<code>super</code>关键字代表的表达式</p></li><li><p><code>ThisExpr</code></p><p>就一个<code>this</code>关键字代表的表达式</p></li><li><p><code>UnaryExpr</code></p><p>一元表达式，包括非运算、取反、自增、自减等</p></li><li><p><code>VariableDeclarationExpr</code></p><ul><li>一个声明局部变量的表达式</li><li>内部由n个<code>VariableDeclarator</code>对象构成，区别如下<ul><li><code>int a=0, b, c=-111</code>是<code>VariableDeclarationExpr</code>对象</li><li><code>a=0</code>是<code>VariableDeclarator</code>对象，<code>b</code>和<code>c=-111</code>也是</li></ul></li></ul></li><li><p><code>LambdaExpr</code></p><p>Java8的Lambda表达式，标志性运算符是<code>-&gt;</code></p></li><li><p><code>MethodReferenceExpr</code></p><p>Java8的方法指针，标志性运算符是<code>::</code></p></li><li><p><code>TypeExpr</code></p><p>与<code>NameExpr</code>地位相似，最基础的<code>Expression</code>，代表变量类型、属性类型等等等…</p><p>很多<code>Expression</code>内部都有<code>TypeExpr</code></p></li><li><p><code>SwitchExpr</code></p><p>Java12的Switch表达式</p></li></ol><h3 id="LiteralExpr-“字面量”"><a href="#LiteralExpr-“字面量”" class="headerlink" title="LiteralExpr “字面量”"></a>LiteralExpr “字面量”</h3><ol><li><p><code>BooleanLiteralExpr</code></p></li><li><p><code>CharLiteralExpr</code></p></li><li><p><code>DoubleLiteralExpr</code></p></li><li><p><code>IntegerLiteralExpr</code></p></li><li><p><code>LongLiteralExpr</code></p></li><li><p><code>NullLiteralExpr</code></p></li><li><p><code>StringLiteralExpr</code></p></li><li><p><code>TextBlockLiteralExpr</code></p><p>Java13的多行字符串，类似于Python中<code>&#39;&#39;&#39;</code>包裹的字符串</p></li></ol><h2 id="Statement-“语句-代码块”"><a href="#Statement-“语句-代码块”" class="headerlink" title="Statement “语句/代码块”"></a>Statement “语句/代码块”</h2><p>难以找到一个中文词语来描述<code>Statement</code>，但可以看看它们的一些共性</p><ul><li><p>有些<code>Statement</code>代表一个以<code>;</code>结束的语句，这类<code>Statement</code>对象内部有个<code>Expression</code>属性</p></li><li><p>有些<code>Statement</code>代表一个大括号代码块，这类<code>Statement</code>对象内部有个<code>Statement</code>列表</p></li></ul><ol><li><p><code>AssertStmt</code></p><p><code>assert</code>开头的断言</p></li><li><p><code>BlockStmt</code></p><p>一整个大括号，内部有个<code>Statement</code>列表</p></li><li><p><code>BreakStmt</code></p><p>就是<code>break;</code></p></li><li><p><code>ContinueStmt</code></p><p>就是<code>continueStmt;</code>或者<code>continue myLabel;</code></p></li><li><p><code>DoStmt</code></p><p>do-while代码块，内部有<code>condition</code>、<code>body</code>两个属性</p></li><li><p><code>EmptyStmt</code></p><p>就是<code>;</code></p></li><li><p><code>ExplicitConstructorInvocationStmt</code></p><p>调用父构造方法的语句</p></li><li><p><code>ExpressionStmt</code></p><p><code>;</code>结尾的表达式语句</p></li><li><p><code>ForEachStmt</code></p><p>for-each代码块，内部有<code>variable</code>、<code>iterable</code>、<code>body</code>三个属性</p></li><li><p><code>ForStmt</code></p><p>for-index代码块，内部有<code>initialization</code>、<code>compare</code>、<code>update</code>、<code>body</code>四个属性</p></li><li><p><code>IfStmt</code></p><p>if-else代码块，内部有<code>condition</code>、<code>thenStmt</code>、<code>elseStmt</code>三个属性</p><p>其中elseStmt还可以是个<code>IfStmt</code>，代表elseif</p></li><li><p><code>LabeledStmt</code></p><p>label代码块</p></li><li><p><code>ReturnStmt</code></p><p>return语句</p></li><li><p><code>SwitchStmt</code></p><p>Switch代码块</p></li><li><p><code>SynchronizedStmt</code></p><p>同步代码块</p></li><li><p><code>ThrowStmt</code></p><p>throw语句</p></li><li><p><code>TryStmt</code></p><p>try-catch语句，内部有<code>tryBlock</code>、<code>catchClause</code>、<code>finallyBlock</code>，以及代表Java7的auto-close的<code>resources</code></p></li><li><p><code>LocalClassDeclarationStmt</code></p><p>方法内的Local类声明</p></li><li><p><code>WhileStmt</code></p><p>while代码块，内部有<code>condition</code>和<code>body</code>两个代码块</p></li><li><p><code>UnparsableStmt</code></p><p>无法解析的语句或者代码块，一般编译能通过的代码，解析不出这种Statement</p></li><li><p><code>YieldStmt</code></p><p>Java12的yield语句</p></li></ol><h2 id="Type-“类型”"><a href="#Type-“类型”" class="headerlink" title="Type “类型”"></a>Type “类型”</h2><p><code>Type</code>的派生类也是个大家族，但它们的命名往往比较直观</p><p>类内部的属性也很简单，一般只有<code>name</code>需要关注，最多是个泛型类型，还有个<code>Type typeArguments</code>属性</p><p>所以这里不列举了</p><h2 id="Comment-“注释”"><a href="#Comment-“注释”" class="headerlink" title="Comment “注释”"></a>Comment “注释”</h2><p><code>Comment</code>只有3个派生类</p><ul><li><code>LineComment</code> 行注释</li><li><code>BlockComment</code> 块状注释</li><li><code>JavadocComment</code>  <code>/**</code>开头的Javadoc风格的注释</li></ul><p>没有特别需要说明的</p><h2 id="Javadoc-“Java-Doc”"><a href="#Javadoc-“Java-Doc”" class="headerlink" title="Javadoc “Java Doc”"></a>Javadoc “Java Doc”</h2><p><code>Javadoc</code>是一个与<code>JavadocComent</code>的不同的类，前者不是<code>Comment</code>的派生类，甚至不是<code>Node</code>的派生类。</p><p>两者的区别，可以以下面两个例子说明——</p><pre><code class="java">/** * JavadocComment对象内部只有一个String content属性，所以它只能表示简单的JavaDoc */</code></pre><pre><code class="java">/** * 这是&lt;code&gt;Javadoc&lt;/code&gt;对象所有代表的注释 * &lt;pre&gt; *  1. Javadoc内部属性的类型和层次比较丰富， *  2. 所以可以表示像这个这样的 *  3. 复杂JavaDoc * &lt;/pre&gt; * * @author Deolin */</code></pre><p><img src="/images/javaparser-type-01.png" srcset="/img/loading.gif" alt=""></p><p>举个详细点的例子</p><p><img src="/images/javaparser-type-02.png" srcset="/img/loading.gif" alt=""></p><p><img src="/images/javaparser-type-03.png" srcset="/img/loading.gif" alt=""></p><p>可以看出，Java是由内容描述和tags组成的，每个tag是由name、type与内容组成的，内容里的元素又分普通文本与inline标签。</p><p>有了例子以后，还是比较直观的</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Java8 time包指南</title>
+    <link href="/posts/java8-time-guide/"/>
+    <url>/posts/java8-time-guide/</url>
+    
+    <content type="html"><![CDATA[<p>除非身边的人都不会、并且都不打算学着使用，否则没什么理由不使用Java8 time。</p><h2 id="新的类型"><a href="#新的类型" class="headerlink" title="新的类型"></a>新的类型</h2><h3 id="LocalDate与LocalTime"><a href="#LocalDate与LocalTime" class="headerlink" title="LocalDate与LocalTime"></a>LocalDate与LocalTime</h3><ul><li><p>类如其名，它们分别代表“年月日”这样的<strong>日期</strong>与“时分秒”这样的<strong>时间</strong></p></li><li><p>这两个类型都实现了<code>Temporal</code>接口</p></li><li><p>构建对象</p><pre><code class="java">// 方式一：通过APILocalTime localTime = LocalTime.of(21, 1, 1);LocalDate localDate = LocalDate.of(2012, 12, 31);LocalTime localTime2 = LocalTime.now();LocalDate localDate2 = LocalDate.now();// 方式二：通过转化字符串LocalTime localTime3 = LocalTime.parse(&quot;12:12:12&quot;, dateTimeFormatter);</code></pre></li><li><p>解析时间</p><pre><code class="java">// 方式一：通过APIint year = localDate.getYear();int hour = localTime.getHour();// ...// 方式二：通过TemporalFieldint month = localDate.get(ChronoField.MONTH_OF_YEAR); // ChronoField枚举实现了TemporalFieldint minute = localTime.get(ChronoField.MINUTE_OF_HOUR);// ...</code></pre><p>示例中提到的<code>TemporalField</code>接口值得被关注，它有许多实现类，这意味着Java提供了许多种解析时间的方式，例如</p><ul><li>get(IsoFields.DAY_OF_QUARTER) 返回该时间是所在季度的第几天</li><li>get(ChronoField.MINUTE_OF_HOUR) 返回该时间的分钟数</li></ul><p>多查<code>TemporalField</code>的实现类，并善用它们，可以让原本复杂的时间解析变得非常简单。</p></li></ul><h3 id="LocalDateTime"><a href="#LocalDateTime" class="headerlink" title="LocalDateTime"></a>LocalDateTime</h3><ul><li><p>这个类型是<code>LocalDate</code>与<code>LocalTime</code>的合体，它也实现了<code>Temporal</code>接口</p></li><li><p>构建对象</p><pre><code class="java">LocalDateTime ldt1 = LocalDateTime.of(2000, 1, 1, 12, 1, 1);LocalDateTime ldt2 = LocalDateTime.of(localDate, localTime);LocalDateTime ldt3 = localDate.atTime(12, 1, 1);LocalDateTime ldt4 = localDate.atTime(localTime);LocalDateTime ldt5 = localTime.atDate(localDate); </code></pre><p>不得不说，真的设计地非常灵活。</p></li><li><p><code>LocalDateTime</code>的API与<code>LocalDate</code>和<code>LocalTime</code>很类似</p></li></ul><h3 id="Instant"><a href="#Instant" class="headerlink" title="Instant"></a>Instant</h3><ul><li><code>Instant</code>是面向计算机的时间类型，它也实现了<code>Temporal</code>接口</li><li>一般通过秒和纳秒来构建<code>Instant</code>对象</li><li><code>Instant</code>不支持读取值，调用get方法会抛出异常</li></ul><h3 id="Duration与Period"><a href="#Duration与Period" class="headerlink" title="Duration与Period"></a>Duration与Period</h3><ul><li><p>它们分别表示两个<code>Temporal</code>之间的时间间隔</p></li><li><p>这两个类都没有实现<code>Temporal</code>接口</p></li><li><p>构建对象</p><pre><code class="java">// Duration表示LocalDate以外的两个Temporal之间的间隔Duration d = Duration.between(localTime, localTime2);Duration d2 = Duration.between(localDateTime, localDateTime2);Duration d3 = Duration.between(instant, instant2);// Period表示两个LocalDate之间的间隔Period period = Period.between(LocalDate.now(), LocalDate.of(2019, 12, 31));</code></pre></li><li><p>解析<strong>时间间隔</strong></p><p><code>Duration</code>与<code>Period</code>对象都支持使用<code>get</code>方法进行解析，这个方法支持所有<code>TemporalUnit</code>的实现类</p></li></ul><h2 id="操作Temporal"><a href="#操作Temporal" class="headerlink" title="操作Temporal"></a>操作Temporal</h2><p>这里以<code>LocalDate</code>为例，介绍一下如何操作<code>Temporal</code>对象</p><ul><li><p>直接修改值</p><pre><code class="java">// 方式一：使用APILocalDate date = LocalDate.of(2014, 12, 1); // 2014-12-01LocalDate newDate = date.withYear(2018); // 2018-12-01// 方式二：使用TemporalAdjuster（也可以使用自定义的TemporalAdjuster实现类）LocalDate newDate2 = date.with(TemporalAdjuster.lastDayOfMonth()); // 2014-12-31</code></pre><p>注意，<code>LocalDate</code>是不可变对象</p></li><li><p>相对修改值</p><pre><code class="java">LocalDate date = LocalDate.of(2014, 12, 1); // 2014-12-01LocalDate newDate = date.plusYears(1).minus(1, ChronoUnit.MONTHS); // 2015-11-01</code></pre></li></ul><h2 id="转换为String"><a href="#转换为String" class="headerlink" title="转换为String"></a>转换为String</h2><ul><li>会用到一个类——<code>DateTimeFormatter</code></li></ul><h2 id="时区问题"><a href="#时区问题" class="headerlink" title="时区问题"></a>时区问题</h2><ul><li><p>新的时区类型为<code>ZoneId</code>和<code>ZoneOffset</code>，其中<code>ZoneOffset</code>是<code>ZoneId</code>的子类。</p></li><li><p><code>LocalDate</code>、<code>LocalTime</code>、<code>LocalDateTime</code>这三个类型都是不带时区信息的，当他们与<code>ZoneId</code>结合后，会生成<code>ZonedDateTime</code></p><pre><code class="java">LocalDate localDateTime = LocalDateTime.of(2019, 1, 2, 12, 12, 12);// 通过ZoneId对象ZonedDateTime zonedDateTime1 = localDateTime.atZone(ZoneId.of(&quot;Europe/Rome&quot;));// 通过ZoneOffset对象ZonedDateTime zonedDateTime2 = localDateTime.atZone(ZoneOffset.of(&quot;-05:00&quot;));</code></pre></li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>MySQL字段类型优化</title>
+    <link href="/posts/mysql-column-type/"/>
+    <url>/posts/mysql-column-type/</url>
+    
+    <content type="html"><![CDATA[<h2 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h2><ol><li>tinyint、smallint、mediumint、int、bigint，其它的类型都是别名，它们分别占用8、16、24、32、64位空间，能存储的最大范围越来越大</li><li>考虑性能的话，优先选更小的类型，除非最大范围不够用；否则使用int往往不会错</li><li>是否unsigned，对性能无影响</li><li>int(1)和int(11)，对性能无影响</li></ol><h2 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h2><ol><li><p>基本没有使用<code>float</code>、<code>double</code>的场景</p></li><li><p>存储精确的小数时，选用<code>decimal</code>，除非过早的版本，decimal支持高精度运算，运算速度不如浮点运算</p></li><li><p>金额类字段考虑使用整数类型</p><p>例如，<code>10.01</code>可以存储成<code>1001</code>，约定以“分”代替“元”进行存储，计算代价小</p></li></ol><h2 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h2><ol><li><p>考虑性能，并且能确定该字段的大部分数据都是定长的，使用<code>char</code>，否则<code>varchar</code></p></li><li><p><code>binary</code>和<code>varbinary</code>是二进制版本的<code>char</code>、<code>varchar</code>，存储的是字节码，使用<code>\0</code>而不是空格填充</p></li><li><p>尽量预估数据可能的最大长度，给<code>varchar</code>安排真正需要的空间</p><p>因为<code>varchar(200)</code>虽然和<code>varchar(10)</code>存储同一个字符串空间开销是一样的，但是更短的列会消耗更少的内存，利用磁盘临时表排序时性能也更好</p></li></ol><h2 id="“时间”类型"><a href="#“时间”类型" class="headerlink" title="“时间”类型"></a>“时间”类型</h2><ol><li>datetime可以存储1001年到9999年范围，精度为秒，无时区，本质上是以YYYYMMDDHHMMSS形式的整数存储的</li><li>timestamp可以存储1970年到2038年范围，精度为秒，显示会与时区有关，比datetime类型占用更少的空间</li></ol><h2 id="冗余逻辑外键的逻辑外键"><a href="#冗余逻辑外键的逻辑外键" class="headerlink" title="冗余逻辑外键的逻辑外键"></a>冗余逻辑外键的逻辑外键</h2><p>例如订单<code>order</code>、订单商品<code>item</code>、订单SKU<code>sku</code>，<code>order</code>与<code>item</code>是n对n的关系，<code>item</code>与<code>sku</code>是1对n的关系。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>MySQL</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>MySQL</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Redis 客户端与服务器实现</title>
+    <link href="/posts/redis-client-server/"/>
+    <url>/posts/redis-client-server/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST将会梳理Redis客户端与服务器主要功能的具体实现方式。</p><h2 id="Redis客户端"><a href="#Redis客户端" class="headerlink" title="Redis客户端"></a>Redis客户端</h2><ol><li><p>Redis是个1对n的服务器程序，一个服务器可以跟多个客户端建立网络连接，每个客户端可以向服务器发送命令</p></li><li><p>对于每个与自己建立连接的客户端，服务端会以<strong>链表</strong>的形式为保存所有客户端的当前信息，链表里每个元素类型是<code>redisClient</code></p></li><li><p>redisClient的属性</p><ul><li><code>fd</code> -1时代表这是个伪客户端，用于代表AOF或Lua发送命令；大于-1时代表客户端的stocket描述符</li><li><code>name</code> 名称，默认为空白，可以通过<code>CLIENT setname</code>设置一个名字</li><li><code>flags</code> 代表角色<ul><li>主从复制时，主、从互相是对方的客户端，他们的<code>flags</code>分别是<code>REDIS_MASTER</code>和<code>REDIS_SLAVE</code></li><li><code>REDIS_PRE_PSYNC</code>指服务器版本太低，无法PSYNC</li><li><code>REDIS_LUA_CLIENT</code>指这是个处理Lua的伪客户端</li><li>其它…</li></ul></li><li><code>querybuf</code>代表输入缓冲区，客户端每向服务器发一条命令，<code>querybuf</code>都会保存下整条命令的SDS</li><li><code>argv</code> 将输入缓冲区分析后，将命令参数保存到<code>argv</code>数组，其中第0项是命令，后面的项是参数</li><li><code>argc</code>是数据的长度，使获取长度的时间复杂度变为O(1)</li><li><code>authenticated</code>记录客户端是否通过了身份验证，为0时服务器只接收<code>AUTH</code>命令</li><li><code>ctime</code>创建客户端的时间，代表客户端与服务器连接多久了</li><li><code>lastinteraction</code>客户端与服务器最后一次互动的时间</li><li><code>obuf_soft_limit_reached_time</code>输出缓冲区第一次达到软限制的时间</li></ul></li><li><p>服务器是如何解析命令的？</p><ol><li><p>服务端解析得到<code>argv</code>和<code>argc</code>，根据<code>argv[0]</code>从命令表查找对应的函数</p><p>命令表是个字典，字典的值保存了函数标志、参数列表、总执行次数、总耗时等</p></li><li><p>执行命令，命令返回值会保存在输出缓冲区</p><p>每个客户端有2个输出缓冲区，一个固定总长度，用于保存长度小的返回值，是个定长字符数组；另一个可变总长度，用于保存长返回值，是个字符串链表。</p></li></ol></li><li><p>当客户端的输出缓冲区超过了硬性限制，服务器会立即关闭客户端</p></li><li><p>当客户端的输出缓存区超过了软性限制，服务器会根据<code>obuf_soft_limit_reached_time</code>来监视客户端，如果长时间超过软性限制，服务器会关闭客户端，如果没有，<code>obuf_soft_limit_reached_time</code>清零</p></li><li><p>服务器的生命周期内，负责执行Lua脚本的伪客户端 会一直存在。</p></li><li><p>服务器载入AOF文件期间，会创建负责执行AOF文件内命令的伪客户端，载入AOF完毕后这个客户端会被关闭</p></li></ol><h2 id="Redis服务器执行命令"><a href="#Redis服务器执行命令" class="headerlink" title="Redis服务器执行命令"></a>Redis服务器执行命令</h2><ol><li><p>客户端把用户输入的命令转化为协议，发向服务器</p></li><li><p>客户端与服务器的Stock因为客户端写入变得可读，服务器读取协议，保存到输入缓冲区，调用<strong>命令执行器</strong></p></li><li><p>通过命令表找个函数，至此，函数、参数、参数个数集齐</p></li><li><p>检查找到的函数是否为NULL</p><p>检查函数所需参数个数与<code>argc</code>代表的参数个数是否一致</p><p>检查身份验证</p><p>检查内存是否足够</p><p>BGSAVE、订阅、数据载入、Lua时相关限制的检查</p></li><li><p>调用函数，返回值保存到输出缓冲区</p></li><li><p>慢查询日志（如果开启了的话）</p><p>更新客户端的<code>milliseconds</code>属性、<code>calls</code>自增1</p><p>AOF持久化这条命令（如果开启了的话）</p><p>将命令传播到从服务器（如果有从服务器的话）</p></li><li><p>Stocket变为可写状态，<strong>命令回复器</strong>将输入缓冲区的返回值转化为协议，发向客户端。</p></li><li><p>客户端将协议转化为返回值，打印到终端</p></li></ol><h2 id="serverCron函数"><a href="#serverCron函数" class="headerlink" title="serverCron函数"></a>serverCron函数</h2><ol><li><p>默认100ms执行一次</p></li><li><p>服务器状态保存了当前系统时间的缓存，serverCron每次执行会更新时间缓存，所以精确度不高</p></li><li><p>对时间精确度要求不高的任务，会基于系统时间缓存来定时执行，以减少系统调用次数</p></li><li><p><code>trackOperationsPerSecond</code>每100ms执行一次，抽样计算，估出最近1s内处理的命令数量</p><p>估算方式是统计两次函数调用之间执行的命令数，算出每ms的命令数，乘以1000</p></li><li><p>serverCron会查看服务器当前的内存使用量</p></li><li><p>serverCron会检查客户端与服务器是否长时间无互动，释放占用过高的客户端输入缓冲区</p></li><li><p>serverCron会检查并删除过期键，收缩字典等操作</p></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Redis</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Java编码方式</title>
+    <link href="/posts/beautiful-java/"/>
+    <url>/posts/beautiful-java/</url>
+    
+    <content type="html"><![CDATA[<h2 id="防止下标越界"><a href="#防止下标越界" class="headerlink" title="防止下标越界"></a>防止下标越界</h2><pre><code class="java">import com.google.common.collect.Iterables;User firstOne = Iterables.getFirst(users, null);User lastOne = Iterables.getLast(users, null);</code></pre><h2 id="null缺省"><a href="#null缺省" class="headerlink" title="null缺省"></a>null缺省</h2><pre><code class="java">import com.google.common.base.MoreObjects;Integer age = MoreObjects.firstNonNull(user, DEFAULT_USER).getAge();</code></pre><p>在Guava的早期版本中，<code>firstNonNull</code>是声明在<code>com.google.common.base.Objects</code>中的，这容易与<code>java.util.Objects</code>产生冲突，所以不推荐使用过于早版本的Guava</p><h2 id="简化if-null-then-null"><a href="#简化if-null-then-null" class="headerlink" title="简化if-null-then-null"></a>简化if-null-then-null</h2><pre><code class="java">import org.apache.commons.lang3.math.NumberUtils;Long a = NumberUtils.createLong(user.getValue());</code></pre><h2 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h2><pre><code class="java">import com.google.common.base.Joiner;StringBuilder msg = Joiner.on(&quot;、&quot;).appendTo(new StringBuilder(&quot;这些用户已被禁用：&quot;), userIds).append(&quot;。&quot;);</code></pre><h2 id="获取唯一元素"><a href="#获取唯一元素" class="headerlink" title="获取唯一元素"></a>获取唯一元素</h2><pre><code class="java">import com.google.common.collect.Iterables;Foo foo = Iterables.getOnlyElement(foos);</code></pre><p>foos元素个数不足或是个数过多会抛出<code>NoSuchElementException</code>或是<code>IllegalArgumentException</code></p><h2 id="java-time"><a href="#java-time" class="headerlink" title="java.time.*"></a>java.time.*</h2><p><a href="https://spldeolin.com/posts/java8-time-guide/">Java8 time包指南</a></p><h2 id="谨慎使用继承（extends）"><a href="#谨慎使用继承（extends）" class="headerlink" title="谨慎使用继承（extends）"></a>谨慎使用继承（extends）</h2><p>继承代表父子耦合，使用继承前想一想，“这里需要用到多态吗？不需要的话用“组合”行不行？”</p><p>继承会引发的BUG可以参考 <code>add</code> 和 <code>addAll</code> 的那个例子</p><h2 id="预提供调用方对返回值的常用操作"><a href="#预提供调用方对返回值的常用操作" class="headerlink" title="预提供调用方对返回值的常用操作"></a>预提供调用方对返回值的常用操作</h2><pre><code class="java">// beforepublic UserDto getUser(Long userId) {    return userDao.get(userId);}</code></pre><pre><code class="java">// afterpublic Optional&lt;UserDto&gt; getUser(Long userId) {    return Optional.ofNullable(userDao.get(userId));}public UserDto getUserOrElseThrow(Long userId) {    return getUser().orElseThrow(() -&gt; new UserAbsentException(userId));}public UserDto getUserOrElseNew(Long userId) {    return getUser().orElseThrow(new UserDto());}</code></pre><h2 id="打印日志的场景"><a href="#打印日志的场景" class="headerlink" title="打印日志的场景"></a>打印日志的场景</h2><ol><li><p>“值类型”或者元素是“值类型”的容器，构建/初始化完毕后，打印日志是有必要的。</p><p>比起Javabean，“值类型”对象toString的返回值往往很短，打印它们开销很小，同时他们代表的信息对于调试又很关键（例如<code>List&lt;Long&gt;</code>，它们往往代表着一些实体的外键）</p><pre><code class="java">Map&lt;Long, Integer&gt; extractIds = Maps.newHashMap();javabeans.forEach(one -&gt; extractIds.add(one.getId()));log.info(&quot;extractIds={}&quot;, extractIds.toString())</code></pre></li><li><p>调用其他模块的API之后</p><pre><code class="java">List&lt;String&gt; itemAttrValues = goodsApi.getAttrValues(itemIds, true, 500);log.info(&quot;goodsApi.getAttrValues({}, true, 500)={}&quot;, itemIds, itemAttrValues);</code></pre></li><li><p>return null之前</p><pre><code class="java">if (items.size() == 0) {    log.warn(&quot;找不到任何商品，itemName={}&quot;, itemName); // warn还是info取决于业务    return null;}</code></pre></li><li><p>请求无法继续执行时</p><pre><code class="java">try {    stockApi.lockStock(id, delta);} catch (OutOfStockException e) {    log.error(&quot;库存不足，可能是操作期间C端下单所致&quot;);    throw new SubmitOrderException();}</code></pre></li></ol><h2 id="考虑使用一个ApiImpl来实现多个Api"><a href="#考虑使用一个ApiImpl来实现多个Api" class="headerlink" title="考虑使用一个ApiImpl来实现多个Api"></a>考虑使用一个<code>ApiImpl来</code>实现多个<code>Api</code></h2><p>当你的所有<code>ApiImpl</code>里实现的方法没有任何业务逻辑，只有调用<code>Service</code>和数据组装时，可以考虑使用一个<code>ApiImpl来</code>实现多个<code>Api</code></p><p>这样做有助于减少IDE阅读代码时需要打开的窗口数，提高阅读代码的效率</p><p>由于改动的仅仅是实现，所以“<strong>接口隔离原则</strong>”既然是遵守的。</p><h2 id="本应该查询到1个但是查到多个时，考虑抛出异常"><a href="#本应该查询到1个但是查到多个时，考虑抛出异常" class="headerlink" title="本应该查询到1个但是查到多个时，考虑抛出异常"></a>本应该查询到1个但是查到多个时，考虑抛出异常</h2><pre><code class="java">/** * 根据手机号获取用户，不存在时返回null */public User getUserOrElseNull(String telephone)         throws MoreThanOneResultsException {    List&lt;User&gt; users = userDao.select(new Wrapper(&quot;telephone&quot;, telephone));    if (users.size() == 0) {        return null;    }    // 预想之外的情况    if (users.size() &gt; 1) {         // 抛出异常交给调用者处理，如果业务上不可能发生，算作BUG；如果是正常情况，那么调用方可以捕获        throw new MoreThanOneResultsException(users);    }    return users.get(0);}</code></pre><pre><code class="java">/** * 当本应返回1个满足条件结果的方法内部获取到不止1个结果时，应该抛出这个异常。 */public class MoreThanOneResultsException extends RuntimeException {    private static final long serialVersionUID = 3999892488916264668L;    private Object firstOne;    private Collection&lt;?&gt; results;    public MoreThanOneResultsException(Collection&lt;?&gt; results) {        super();        if (results == null || results.size() == 0) {            throw new IllegalArgumentException(&quot;Results cannot be empty.&quot;);        }        this.results = results;        this.firstOne = Iterables.getFirst(results, null);    }    @SuppressWarnings(&quot;unchecked&quot;)    public &lt;T&gt; T orElseFirst() {        return (T) firstOne;    }    @SuppressWarnings(&quot;unchecked&quot;)    public &lt;T&gt; Collection&lt;T&gt; getResults() {        return (Collection&lt;T&gt;) results;    }    @Override    public String getMessage() {        return &quot;Method obtained more than one result, perhaps caused by data problems. &quot; + results;    }}</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>总结</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Python编码方式</title>
+    <link href="/posts/beautiful-python/"/>
+    <url>/posts/beautiful-python/</url>
+    
+    <content type="html"><![CDATA[<h2 id="判断字符串是否为空-不为空-为空白-不为空白……"><a href="#判断字符串是否为空-不为空-为空白-不为空白……" class="headerlink" title="判断字符串是否为空/不为空/为空白/不为空白……"></a>判断字符串是否为空/不为空/为空白/不为空白……</h2><pre><code class="python"># StringUtils.isEmpty(s);b = not s# StringUtils.isNotEmpty(s);b = bool(s)# StringUtils.isBlank(s);b = not s.strip() # 无参的`strip()`会清除字符串首尾所有的空格、换行符、制表符# StringUtils.isNotBlank(s);b = bool(s.strip())</code></pre><h2 id="判断字符串是否包含了列举出的子字符串中的一个"><a href="#判断字符串是否包含了列举出的子字符串中的一个" class="headerlink" title="判断字符串是否包含了列举出的子字符串中的一个"></a>判断字符串是否包含了列举出的子字符串中的一个</h2><pre><code class="python"># StringUtils.containsAny(aaa, &quot;q&quot;, &quot;w&quot;, &quot;e&quot;)if any(sub in aaa for sub in (&#39;q&#39;, &#39;w&#39;, &#39;e&#39;)):</code></pre><p><code>any</code>函数会去遍历参数，这个参数必须是可迭代的，一旦<code>any</code>遍历到为<code>True</code>的元素，就返回<code>True</code><br><code>any</code>里面的表达式叫做<code>生成器表达式</code>，是<code>生成器函数</code>的简便写法（可以理解称Java中<code>users.forEach(log::info)</code>这样的写法）</p><p>示例中的表达式转化成生成器函数是这样的</p><pre><code class="python">def g1():    for sub in (&#39;q&#39;, &#39;w&#39;, &#39;e&#39;):        yield sub in aaa if (any(g in g1()))</code></pre><p>无论是生成器表达式还是生成器函数，他们都代表一个生成器对象，生成器对象是可迭代的</p><h2 id="递归地遍历文件夹"><a href="#递归地遍历文件夹" class="headerlink" title="递归地遍历文件夹"></a>递归地遍历文件夹</h2><pre><code class="python"># -*- coding: utf-8 -*-import osroot_dir = &#39;E:\\test&#39;i = 1# print(type(os.walk(root_dir))) # &lt;class &#39;generator&#39;&gt;for cur_dir_path, dir_names, file_names in os.walk(root_dir):    # print(type(cur_dir_path)) # &lt;class &#39;str&#39;&gt;    # print(type(dir_names)) # &lt;class &#39;list&#39;&gt;    # print(type(file_names)) # &lt;class &#39;list&#39;&gt;    print(&#39;第{}趟调用os.walk&#39;.format(i))    i += 1    for dir_name in dir_names:        dir = os.path.join(cur_dir_path, dir_name)        # print(type(dir)) # &lt;class &#39;str&#39;&gt;        print(&#39;目录：&#39; + dir)    for file_name in file_names:        file = os.path.join(cur_dir_path, file_name)        # print(type(file)) # &lt;class &#39;str&#39;&gt;        print(&#39;文件：&#39; + file)</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>Python</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Python</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Redis复制功能与哨兵模式</title>
+    <link href="/posts/redis-replicate-sentinel/"/>
+    <url>/posts/redis-replicate-sentinel/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Redis是个单线程的引用，为了充分利用多核/多线程机器的特点，往往需要部署多个Redis实例</p><h2 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h2><ol><li><p>复制功能是Redis多实例之间数据一致的基础</p></li><li><p>被复制的服务器是主服务器，复制方被称为从服务器，一旦开启复制，主从之间的数据是一致的</p></li><li><p>旧版复制功能采用 先<strong>同步</strong>，再<strong>命令传播</strong> 方式实现</p></li><li><p>对于主从断线后重新复制这个场景而言，旧版复制的效率很低，因为重连后会重新<strong>同步</strong>主服务器的所有数据</p></li><li><p>新版Redis采用<code>PSYNC</code>代替<code>SYNC</code>，因为旧版的<strong>同步</strong>（<code>SYNC</code>）开销非常大</p><ul><li><p>对于主服务器而言，同步需要先<code>BGSAVE</code>，再网络传输RDB文件</p></li><li><p>对于从服务器而言，接收RDB文件期间整个服务器是阻塞的</p></li></ul></li><li><p><code>PSYNC</code>有完整重同步和部分重同步两种模式，前者适用于从服务器初次同步，后者适用于主从断开重连时的重同步</p></li><li><p>部分重同步通过<code>+CONTINUE</code>命令，重同步时只传输断线期间的命令，所以效率比完整重同步高</p></li><li><p>部分重同步如何实现</p><ul><li>主从各自维护一个<strong>复制偏移量</strong>，主服务器每传输N个字节，偏移量就+N，从服务器每收到N个字节，偏移量就+N，断线重连后如果主从的<strong>复制偏移量</strong>不一致，则说明不主从不一致了</li><li>主服务器会维护一个固定长度的FIFO队列，被称为<strong>复制积压缓冲区</strong>，命令传播时，每个命令还会写入这个缓存区</li><li>当主从重连后，从会向主发送自己的偏移量，如果主从偏移量之差超过缓冲区的长度了，则完整重同步，否则主需要根据偏移量之差重新传播缓存区里的命令即可</li></ul></li><li><p>命令传播期间的心跳机制</p><ul><li>从每秒钟都会向主发送<code>REPLCONF ASK &lt;复制偏移量&gt;</code></li><li>主服务可以通过<code>INFO replication</code>查看最近一次的ACK，<code>lag</code>属性代表这次ACK距现在的秒数，正常情况下是0秒或1秒，如果超过1秒则代表主从连接不稳定</li><li>主服务器可以通过配置<code>min-slaves-to-write</code>和<code>min-salaves-max-lag</code>设置当从服务器少于n个时，或所有从服务器的<code>lag</code>都大于m时，主服务器会拒绝所有写命令</li><li>如果在心跳期间，主服务器发现偏移量不一致时，主会根据偏移量只差，向从补发<strong>复制积压缓存区</strong>里的数据</li></ul></li></ol><h2 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h2><ol><li><p>哨兵模式是一种能确保多实例之间高可用的一种方案。下图是一个典型的，稳定运行中的哨兵模式示意图</p><p><img src="/images/redis-replicate-sentinel-01.png" srcset="/img/loading.gif" alt=""></p></li><li><p>Sentinel系统本质是使用<code>--sentinel</code>模式启动的Redis实例</p></li><li><p>Sentinel启动流程</p><ul><li>初始化</li><li>将Redis代码替换成Sentinel专用代码</li><li>初始化Sentinel</li><li>初始化Sentinel监视主服务器列表</li><li>创建与主服务器的连接</li></ul></li><li><p>Sentinel是master的客户端，Sentinel会与master建立一个命令连接和订阅连接，前者用于发命令，接收命令回复，后者专门订阅master的<code>__sentinel__:hello</code>频道</p></li><li><p>Sentinel默认每10秒，向master发送<code>INFO</code>命令，尝试获取返回的master信息，信息包括master的信息和下属的slave信息。</p></li><li><p>主观下线：当一个Sentinel没有收到master的<code>PONG</code>回复时，这个Sentinel会将master标记为主观下线</p></li><li><p>客观下线：Sentinel会向其它Sentinel询问主观下线master的状态，如果其它Sentinel也一致认为master下线了，则将master标记为客观下线，从而进行故障转移</p></li><li><p>一旦master客观下线，所有Sentinel会选举出一个领头Sentinel，领头对master进行故障转移</p></li><li><p>故障转移过程</p><ul><li>从下线master下属的slaver挑选一个，向他发送<code>SLAVEOF on one</code>，使它作为新的master</li><li>让其它slaver复制新的master</li><li>将已下线的master设置为新master的slaver</li></ul></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Redis</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Redis中的文件事件与I/O</title>
+    <link href="/posts/redis-event/"/>
+    <url>/posts/redis-event/</url>
+    
+    <content type="html"><![CDATA[<h2 id="文件事件"><a href="#文件事件" class="headerlink" title="文件事件"></a>文件事件</h2><ol><li>Redis服务器通过Stocket与客户端或其它Redis服务器进行连接，文件事件是对这些Stocket操作的抽象</li><li>文件事件处理器使用IO多路复用同时监听多个Stocket，根据Stocket目前执行的任务关联不同的<strong>事件处理器</strong>；被监听的Stocket准备执行<code>accept</code>、<code>read</code>、<code>write</code>、<code>close</code>时，与操作相对应的文件事件就会产生，然后<strong>事件处理器</strong>就会开始处理</li><li>文件处理以单线程运行，虽然文件事件会并发地产生，IO多路复用程序会把文件事件放到队列中，有序、同步地，等事件处理器处理完一个文件事件，才进行下一个</li><li>Redis的多路复用程序有多种实现，编译时会自动选择性能高的实现</li><li>IO部分太复杂，等我补一点基础再来整理….</li></ol><h2 id="时间事件"><a href="#时间事件" class="headerlink" title="时间事件"></a>时间事件</h2><ol><li><p>时间事件指的是Redis服务器中的定时任务</p></li><li><p>时间事件有2类</p><ul><li>定时事件：让一段程序在指定时间之后执行一次</li><li>周期性事件：让一段程序每个指定时间执行一次</li></ul></li><li><p>每个时间事件有3个属性</p><ul><li>id：全局唯一</li><li>when：代表时间事件达到的时间</li><li>timeProc：一个函数，代表上文提到的“一段程序”</li></ul></li><li><p>如果是定时事件，事件处理器处理完毕后返回<code>AE_NOMORE</code>，事件被删除</p></li><li><p>如果是周期性事件，事件处理器返回非<code>AE_NOMORE</code>，对事件的when属性进行更新，实现周期性的效果</p></li><li><p>所有时间事件都放在一个<strong>无序链表</strong>中，每当事件执行器运行时，无序链表会被全表遍历。一般情况下，Redis服务器中的<code>serverCron</code>，benchmark模式下最多也就2个</p></li><li><p>serverCron会执行哪些工作</p><ul><li>统计时间、内存占用、硬盘占用</li><li>清理过期键</li><li>回收连接失效的客户端</li><li>尝试AOF或RDB</li><li>同步 从服务器</li><li>定期同步集群</li></ul></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Redis</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Redis的键过期与持久化</title>
+    <link href="/posts/redis-expire-persistence/"/>
+    <url>/posts/redis-expire-persistence/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST将会整理出Redis是如何实现键过期的，以及Redis数据库持久化的两个方式</p><h2 id="Redis的结构"><a href="#Redis的结构" class="headerlink" title="Redis的结构"></a>Redis的结构</h2><ol><li><p>一个单机Redis服务由底层的<code>RedisServer</code>结构体表示，<code>RedisServer</code>内部持有了<code>RedisDb[]</code>数组，后者代表每个Redis数据库，默认16个</p></li><li><p>RedisDb中维护了两个字典</p><ul><li>保存了键值对的的字典，称为键空间</li><li>保存了键与失效时间的字典，称为过期字典</li></ul></li><li><p>什么样的键算是过期了？</p><ol><li>检查键在过期字典中有没有过期时间</li><li>有的话检查当前UNIX时间戳是否大于键的过期时间</li></ol></li><li><p>过期策略</p><ol><li>定时器删除，对内存友好，多CPU不友好</li><li>每次GET的时候惰性删除，对CPU友好，对内存不友好</li><li>定时、惰性结合的方式，启用惰性删除，并且每个一定时间定时删除一波</li></ol></li><li><p>惰性删除的实现</p><p>在执行读写命令之前，会先调用<code>expireIfNeeded</code>函数，如果过期，则删除，然后执行原命令</p></li><li><p>定期删除的实现</p><ol><li><p>周期性调用<code>activeExpireCycle</code>函数，每次从一定量的<code>redisDb</code>中随机取出一定量的键进行检查，删除过期键</p></li><li><p>全局变量current_db会记录函数的检查进度，下次调用函数时从本次的进度开始处理</p></li><li><p>当所有redisDb都被检查过一遍时，current_db清0，准备开始新一轮的检查</p></li></ol></li><li><p>RDB遇到过期键</p><p>保存：当RDB持久化时遇到过期键，新生成的RDB文件不会保存过期键</p><p>载入：主服务器载入RDB文件时，遇到过期键会忽略，而从服务器则会将过期键载入，不过下次从主同步时，过期的会被清除</p></li><li><p>AOF遇到过期键</p><p>保存：AOF只会在过期键被惰性删除或是定期删除后，才会在AOF文件中追加一条DEL指令，显示地删除</p><p>载入：与RDB类似</p></li></ol><h2 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h2><ol><li>SAVE和BGSAVE命令可以让Redis进行RDB持久化，两者的区别是是否阻塞Redis服务器</li><li>Redis没有载入RDB文件的命令，载入RDB都是在服务器启动时执行的</li><li>BGSAVE期间，SAVE和BGSAVE命令都会被禁止</li><li>BGSAVE期间，BGREWRITEAOF会被延迟到BGSAVE结束，因为两者都是大型的硬盘写入操作，所以不应该同时执行</li></ol><h2 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h2><ol><li><p>RDB文件保存的是键指对，AOF保存的是键值对的插入命令语句</p></li><li><p>当Redis启用AOF时，服务器每执行完一个写命令，就是在aof_buf追加这条写命令，服务器每结束一个事件循环，都会调用flushAppendOnlyFile，将aof_buf里的语句写入到文件中</p></li><li><p>appendfsync选项决定了flushAppendOnlyFile函数的行为</p><ul><li>always，每次调用函数时都写入并同步到文件，效率最低，但安全性最高，即便服务挂了，最坏的请求也只是损失一次时间循环的数据</li><li>everysec，如果上次AOF距现在超过1秒，才进行同步，默认为这种方式</li><li>no，有操作系统决定何时同步</li></ul></li><li><p>当AOF文件足够大时，Redis会对AOF文件进行重写，创建一个新的AOF文件，保存的状态与原AOF文件相同，但不会包含冗余命令</p></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Redis</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Redis底层数据结构 下</title>
+    <link href="/posts/redis-data-structure-2/"/>
+    <url>/posts/redis-data-structure-2/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST紧接<a href="https://spldeolin.com/posts/redis-data-structure-1/">上一篇</a></p><h2 id="整数集合"><a href="#整数集合" class="headerlink" title="整数集合"></a>整数集合</h2><ol><li><p>当SET键内元素只有整数而且数量不多时，Redis会使用整数集合作为这个集合键的底层实现</p></li><li><p>整数集合的结构</p><pre><code class="c">typedef struct intset {    uint32_t encoding; // 编码，每个元素都使用相同的编码    uint32_t length; // 元素个数    int8_t contents[]; // 元素数组，有序，不重复}</code></pre></li><li><p><code>contents[]</code>不保存任何int8_t类型的元素，数组的元素类型由<code>encoding</code>决定</p></li><li><p>类型的长度：<code>int64_t</code>长于<code>int32_t</code>，<code>int32_t</code>长于<code>int8_t</code></p></li><li><p>升级：当一个类型更长整数插入整数集合时，整个集合的所有元素都要升级到长类型</p><ul><li>根据新元素的类型，拓展<code>contents[]</code>的空间大小</li><li>将<code>contents[]</code>中每个元素都转换成与新元素相同的类型，完毕后将元素放入正确的数组位置</li><li>将新元素添加到<code>contents[]</code>中，<code>encoding</code>改为新类型，<code>length</code>自增<code>1</code></li><li>Redis中的整数集合只能升级，不能降级</li></ul></li></ol><h2 id="压缩列表"><a href="#压缩列表" class="headerlink" title="压缩列表"></a>压缩列表</h2><ol><li>当LIST键或HASH键的k-v较少时，而且k和v都是较小整数或者较短字符串时，Redis会使用压缩列表作为它们的底层实现。</li><li>压缩列表的作用是节省内存，它类似于一个顺序的线性表，可以想象成一个数组</li><li>压缩列表保存了哪些信息<ol><li>zlbytes 记录整个压缩列表占用的内存数，用于内存重分配或计算zlend位置</li><li>zltail 记录尾结点距压缩列表起始地址的字节数，用于确定尾结点的地址</li><li>zllen 结点数量</li><li>entry1、entry2、entry3…… 每个结点</li><li>zlend 压缩列表最后一个标记位，用于标记这个压缩列表结束了</li></ol></li><li>每个结点可以保存一个<strong>字节数组</strong>或和一个<strong>整数值</strong></li><li>每个结点由3个属性组成<ul><li>previous_entry_length 记录前一个结点的长度，结合当前结点的起始位置可以计算前一个结点的起始位置</li><li>encoding 记录结点的数据类型和长度</li><li>content 数据域</li></ul></li></ol><h2 id="对象"><a href="#对象" class="headerlink" title="对象"></a>对象</h2><ol><li><p>Redis基于SDS、链表、字典、整数集合、压缩列表这些底层数据结构构建了一个<strong>对象</strong>系统</p></li><li><p>一共有5种对象——字符串对象、列表对象、哈希对象、集合对象、有序集合对象</p></li><li><p>Redis每插入一个k-v时，会至少创建2个对象，一个是k对象，另外n个是v对象</p></li><li><p>对象的结构</p><pre><code class="c">typedef struct redisObject {    unsigned type:4; // 类型，上文的那5种    unsigned encoding:4; // 编码     void *ptr; // 代表这个对象是由哪种底层数据类型实现的}</code></pre></li><li><p><code>encoding</code>记录了对象的编码，每种编码都有对应的底层数据结构。每种对象类型可能有多种编码</p></li><li><p>对象类型、编码、底层数据结构的关系是这样的</p><p><img src="/images/redis-data-structure-2-01.png" srcset="/img/loading.gif" alt=""></p></li><li><p>embstr是一种特殊的SDS，比起一般的SDS，它对短字符串作出了一些优化</p></li></ol><h2 id="对象的内存回收"><a href="#对象的内存回收" class="headerlink" title="对象的内存回收"></a>对象的内存回收</h2><ol><li><p><code>redisObject</code>用<code>refcount</code>属性记录对象的<strong>引用计数</strong></p><ul><li>刚创建的新对象，计数为1</li><li>每被一个新程序使用时，计数自增1</li><li>每不被一个新程序使用时，计数自减1</li></ul></li><li><p>计数变为0时，释放内存</p></li><li><p>当复数个k对应的v是同一个时，v会被共享使用，所以的k都会指向它，每被共享一次，计数自增1</p></li><li><p>比较两个对象是否相同十分耗费CPU，所以Redis种只有整数字符串对象会被共享</p></li><li><p><code>redisObject</code>的第5个属性是<code>lru</code>，记录了该对象最后一次被使用的时间，当Redis服务启用<code>maxmemory</code>并且回收算法是<code>volatile-lru</code>或者<code>allkeys-lru</code>时，空转时间更长的k-v会被释放掉</p></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Redis</tag>
+      
+      <tag>数据结构</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Redis底层数据结构 上</title>
+    <link href="/posts/redis-data-structure-1/"/>
+    <url>/posts/redis-data-structure-1/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Deolin花了几天时间，详细地整理一下Redis底层用到的数据结构</p><h2 id="SDS"><a href="#SDS" class="headerlink" title="SDS"></a>SDS</h2><ol><li><p>Redis使用SDS而不是C语言原生的字符串作为字符串的存储方式</p></li><li><p>SDS的结构</p><pre><code class="c">struct sdshdr {    int len; // 记录了buf[]已使用的数量，等于字符串的长度    int free; // 记录了buf[]未使用的数量    char buf[]; // 用于保存字符串的每个字符}</code></pre><p>注意，<code>buf[]</code>遵循了C语言字符串的惯例，以<code>&#39;\0&#39;</code>作为数组的最后一个元素，<code>&#39;\0&#39;</code>不计算在len中。</p><p>这样做的好处是，SDS可以<strong>复用</strong>很大一部分C语言现成的字符串的函数。</p></li><li><p>SDS比起C字符串的优势</p><ul><li><p>获取字符串长度的时间复杂度是O(1)</p><p>原因是C字符串不记录长度，想要获取长度只能遍历，时间复杂度是O(N)</p></li><li><p>由于<code>free</code>属性的存在，数组不会溢出</p></li><li><p>修改字符串时，会采用<strong>空间预分配</strong>、<strong>惰性空间释放</strong>等机制，以空间换时间。</p></li><li><p>可以保存图片、音频、视频等二进制文件</p><p>C字符串以<code>&#39;/0&#39;</code>作为结束，一旦二进制文件出现了<code>&#39;/0&#39;</code>，就认为字符串结束了，所以只能保存文本数据</p></li></ul></li></ol><h2 id="链表"><a href="#链表" class="headerlink" title="链表"></a>链表</h2><ol><li><p>链表是Redis的LIST键的实现之一，C语言没有提供链表的实现，所以由Redis自己实现</p></li><li><p>链表和链表结点的结构</p><pre><code class="c">typedef struct listNode {    struct listNode *prev; // 前指针域    struct listNode *next; // 后指针域    void *value; // 数据域}    </code></pre><pre><code class="c">typedef struct list {    listNode *head; // 表头指针    listNode *tail; // 表尾指针    unsigned long len; // 链表长度    void *(*dup) (void *ptr); // 复制一个Node    void *(*free) (void *ptr) // 释放一个Node    int (*match) (void *ptr, void *key); // 比较两个Node（的数据域）}</code></pre></li><li><p>特性</p><ul><li>由于<code>表头指针</code>和<code>表尾指针</code>，Redis的链表是双端的，获取头尾结点的时间复杂度是O(1)</li><li>由于头结点的<code>*prev</code>和尾结点的<code>*next</code>都指向NULL，Redis的链表是无环的</li><li>由于<code>len</code>属性，获取表长度的时间复杂度是O(1)</li></ul></li></ol><h2 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h2><ol><li><p>整个Redis数据库的底层实现就是字典，Redis的HASH键的底层实现也是字典</p></li><li><p>字典是基于Hash表实现的，与Java的HashMap类似，每个键都是唯一的</p></li><li><p>注意区分<strong>HASH键</strong>、<strong>字典</strong>、<strong>Hash表</strong>这3个概念</p></li><li><p>Hash表的结构</p><pre><code class="c">typedef struct dictht {    dictEntry **table; // Hash表数组    unsigned long size; // Hash表的大小，永远是2的n次幂    unsigned long sizemask; // Hash掩码，永远是size - 1    unsigned long used; // Hash表结点数}</code></pre><pre><code class="c">typedef struct dictEntry {    void *key; // Hash表的key    union { // Hash表的value，可以是个指针，或是unit64_t整数，或是int64_t整数        void *val;         uint64_tu64;         int64_ts64;    } v;    struct dictEntry *next; // Hash冲突时线程链表（跟Java很像）} </code></pre></li><li><p>字典的实现</p><pre><code class="c">typedef struct dict {    dictType *type; // 这个属性是为了支持多种数据类型，不用关注c语言细节，参考Java的泛型    void *privdata; // 这个属性是为了支持多种数据类型，不用关注c语言细节，参考Java的泛型    dictht ht[2]; // ht[1]大部分时候是空表，rehash才会用到ht[1]      int rehashindex; // 标志位，大部分时候为-1}</code></pre></li><li><p>Hash算法</p><ul><li>通过字段内部的<code>hashFunction</code>计算key的Hash值</li><li>Hash值与Hash表中的<code>sizemask</code>进行<strong>与运算</strong>，算出下标</li></ul></li><li><p>rehash过程</p><ul><li>为<code>ht[1]</code>分配空间，需要的空间基于<code>ht[0]</code>的<code>used</code>，一般扩大操作取第一个大于<code>used*2</code>的<strong>2的n次幂</strong>，收缩操作取第一个大于<code>used*2</code>的<strong>2的n次幂</strong></li><li>重新使用<code>ht[1]</code>的<code>sizemask</code>，重新算出每个key在<code>ht[1]</code>的下标，逐个迁移每个entry</li><li>迁移完毕后，<code>ht[0]</code>变成空表，释放<code>ht[0]</code>，将<code>ht[1]</code>设置为<code>ht[0]</code>，<code>ht[1]</code>新建一个空表，rehash完毕</li></ul></li><li><p>渐进式rehash</p><ul><li>为<code>ht[1]</code>分配空间，让字典同时持有<code>ht[0]</code>和<code>ht[1]</code>，并把<code>rehashindex</code>从<code>-1</code>设为<code>0</code>，表示开始rehash</li><li>rehash期间，<code>ht[0]</code>添加、删除、更新操作时，操作也会顺带同步到<code>ht[1]</code>，当rehash完毕后，<code>rehashindex</code>从<code>0</code>设为<code>1</code></li><li>当<code>ht[0]</code>与<code>ht[1]</code>一致时，<code>rehashindex</code>从<code>1</code>设为<code>-1</code></li><li>渐进式rehash期间，新的kv只会添加到<code>ht[1]</code>，<code>ht[0]</code>只减不增，直至变为空表</li></ul></li></ol><h2 id="跳跃表"><a href="#跳跃表" class="headerlink" title="跳跃表"></a>跳跃表</h2><ol><li><p>跳跃表是Redis中ZSET的底层实现</p></li><li><p>跳跃表的结构</p><p>可以结合这个图来理解跳跃表的结构</p><p><img src="/images/redis-data-structure-1-01.png" srcset="/img/loading.gif" alt=""></p><pre><code class="c">typedef struct zskiplist {    zskiplistNode *header; // 头指针    zskiplistNode *tail; // 尾指针    int level; // 层数最大结点的层数（不计表头结点）    int len; // 结点个数（不计表头结点）}</code></pre><pre><code class="c">typedef struct zskiplistNode {    struct zskiplistLevel {        struct zskiplistNode *forward; // 前进指针        unsigned int span; // 跨度，指距前一个结点跳过了几个结点    } level[];    struct zskiplistNode *backward; // 后退指针    double score; // 分值    robj *obj; // 数据域}</code></pre></li><li><p>跨度<code>span</code>的作用</p><ul><li><p>两个结点之间跃过的结点越多，跨度越大</p></li><li><p>指向null的接口的跨度为0</p></li><li><p>跨度不是用来遍历的，想要遍历跳表有前进指针就行了</p></li><li><p>跨度是用来计算某个结点的排位的，在寻找结点时，把沿途的跨度都累加起来，代表了该结点的排位</p></li></ul></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Redis</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Redis</tag>
+      
+      <tag>数据结构</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>学习Python</title>
+    <link href="/posts/learning-python-type/"/>
+    <url>/posts/learning-python-type/</url>
+    
+    <content type="html"><![CDATA[<p>最终，Deolin选择了<code>Python</code>作为他的第二编程语言</p><ul><li>由于是完全自学，也没有任何项目包袱，所以Deolin选择了最新的<code>3.7.3</code>版本来入门</li><li>为了方便自己理解，Deolin会拿Python与Java做一些适当的类比</li></ul><p>2020-12-01追记：学习Python系列被整合在了一起</p><h2 id="常用类型"><a href="#常用类型" class="headerlink" title="常用类型"></a>常用类型</h2><p><img src="/images/learning-python-type-01.png" srcset="/img/loading.gif" alt=""></p><h2 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h2><p><img src="/images/learning-python-flow-01.png" srcset="/img/loading.gif" alt=""></p><h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="定义、使用"><a href="#定义、使用" class="headerlink" title="定义、使用"></a>定义、使用</h3><p>没有大括号，只有冒号</p><pre><code class="python">def do_something(what_thing):    print(what_thing + &#39; done.&#39;)do_something(&#39;writing&#39;)</code></pre><h3 id="关键字参数"><a href="#关键字参数" class="headerlink" title="关键字参数"></a>关键字参数</h3><pre><code class="python">def someone_do_something(who, what_thing):    print(what_thing + &#39; done by &#39; + who + &quot;.&quot;)someone_do_something(who = &#39;Deolin&#39;, what_thing = &#39;writing&#39;)</code></pre><h3 id="参数默认值"><a href="#参数默认值" class="headerlink" title="参数默认值"></a>参数默认值</h3><pre><code class="python">def do_you_like_deolin(y_n=True):   # 等号两端不要有空格    if y_n:        print(&#39;yes, i do&#39;)    else:        print(&#39;no, i do not&#39;)do_you_like_deolin()</code></pre><h3 id="函数修改列表"><a href="#函数修改列表" class="headerlink" title="函数修改列表"></a>函数修改列表</h3><pre><code class="python">def modify(list, str):    list[0] = strraw = list(range(0,10))modify(raw, &#39;first&#39;)print(raw)modify(raw[:], &#39;second&#39;)         # 注意[:]print(raw)</code></pre><h3 id="不定参数列表"><a href="#不定参数列表" class="headerlink" title="不定参数列表"></a>不定参数列表</h3><pre><code class="python">def mmm(*args):    for v in vs:        print(v)mmm(1,2,3,4,&#39;a&#39;)</code></pre><p>在这里，values是个元组</p><h3 id="不定关键字参数列表"><a href="#不定关键字参数列表" class="headerlink" title="不定关键字参数列表"></a>不定关键字参数列表</h3><pre><code class="python">def iii(**kwargs):    for k, v in kvs.items():        print(k + &#39;---&#39; + str(v) + &#39;\n&#39;)iii(w=&#39;1&#39;, a=&#39;b&#39;, b=1) # 这里的key不能是数字，也不能以数字开头</code></pre><h3 id="什么是模块"><a href="#什么是模块" class="headerlink" title="什么是模块"></a>什么是模块</h3><p>定义了若干<code>函数</code>的的<code>py文件</code>，被称为<code>模块</code></p><h3 id="导入整个模块"><a href="#导入整个模块" class="headerlink" title="导入整个模块"></a>导入整个模块</h3><pre><code class="python">import pizza as pp.greeting()p.serve()p.clean()</code></pre><p><code>import</code>后跟的是py文件名</p><h3 id="导入模块里的某个函数"><a href="#导入模块里的某个函数" class="headerlink" title="导入模块里的某个函数"></a>导入模块里的某个函数</h3><pre><code>from pizzz import greeting, cleangreeting()clean()</code></pre><h2 id="类（Class）"><a href="#类（Class）" class="headerlink" title="类（Class）"></a>类（Class）</h2><p><img src="/images/learning-python-class-01.png" srcset="/img/loading.gif" alt=""></p><h2 id="文件IO"><a href="#文件IO" class="headerlink" title="文件IO"></a>文件IO</h2><p><img src="/images/learning-python-file-01.png" srcset="/img/loading.gif" alt=""></p><h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p><img src="/images/learning-python-exception-01.png" srcset="/img/loading.gif" alt=""></p><h2 id="命名规约"><a href="#命名规约" class="headerlink" title="命名规约"></a>命名规约</h2><h3 id="驼峰还是蛇形？"><a href="#驼峰还是蛇形？" class="headerlink" title="驼峰还是蛇形？"></a>驼峰还是蛇形？</h3><p>在Python的官方的示例代码中，出现过3种命名法</p><ul><li><code>SCREAMING_SNAKE_CASE</code>：常量</li><li><code>PascalCase</code>：类名</li><li><code>snake_case</code>：变量名、函数名、属性名、方法名、包名、模块名、py文件的文件名</li></ul><p>与官方保持一致即可。</p><h3 id="下划线的作用"><a href="#下划线的作用" class="headerlink" title="下划线的作用"></a>下划线的作用</h3><ol><li><p>单前导下划线 （如<code>_var</code>）</p><p>代表这个属性或方法是受保护的，能够访问但不建议访问。</p><p>“不去管它就好”</p></li><li><p>单末尾下划线 （如<code>def_</code>）</p><p>用于解决变量名被Python关键字占用的情况</p></li><li><p>双前导下划线 （如 <code>__var</code>）</p><p>代表不能访问，dir()中找不到它，因为它被Python修饰成别的方法名了</p></li><li><p>双前导和末尾下划线 （如<code>__var__</code>）</p><p>代表内置属性，可以访问，但绝对不要创造这样命名的属性或方法</p></li><li><p>单下划线</p><p>用来为不需要被引用变量来占位，常见用法有以下两种</p><pre><code class="python">for _ in range(5): # 作用类似Java中的for-index循环    print(&#39;hh&#39;)</code></pre><pre><code class="python">user_profile = (1, &#39;Deolin&#39;, &#39;Hangzhou&#39;, &#39;male&#39;, [&#39;Java&#39;, &#39;Python&#39;])_, name, _, _, langs = user_profileprint(name)print(langs)</code></pre></li></ol><h2 id="MySQL、Redis"><a href="#MySQL、Redis" class="headerlink" title="MySQL、Redis"></a>MySQL、Redis</h2><h3 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h3><pre><code class="python"># coding=utf-8import pymysql# 建立MySQL连接connection = pymysql.connect(host=&#39;127.0.0.1&#39;,                             port=3306,                             database=&#39;beginning_mind&#39;,                             user=&#39;root&#39;,                             password=&#39;root_r0oT&#39;,                             charset=&#39;utf8&#39;)cur = connection.cursor(pymysql.cursors.DictCursor)try:    cur.execute(&#39;insert into biz_demo (id,name) values (%s, %s)&#39;, (2, &#39;a&#39;))    connection.commit()except:    db.rollback()cur.execute(&#39;select * from biz_demo&#39;)for one in cur.fetchAll():    print(one)db.close()</code></pre><p><code>pymysql</code>类似与Java中的<code>apache-dbutils</code>，业务复杂时应该还是要上ORM</p><h3 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h3><pre><code class="python"># coding=utf-8import redisconnection = redis.Redis(host=&#39;127.0.0.1&#39;,                         password=&#39;root_r0oT&#39;,                         decode_responses=True) # decode_responses=True用来确保取值时中文不乱码connection.hset(&#39;a&#39;, &#39;b&#39;, &#39;汉字&#39;)print(connection.hget(&#39;a&#39;, &#39;b&#39;))</code></pre><p><code>redis</code>是Redis官方提供的Python类库</p><h2 id="JSON、CSV"><a href="#JSON、CSV" class="headerlink" title="JSON、CSV"></a>JSON、CSV</h2><pre><code class="python">#!/usr/bin/python3import pandas as pddemo_data = {&#39;a&#39;: [1, 2, 3], &#39;b&#39;: [4, 5, &#39;汉字&#39;]}# help(pd)df = pandas.DataFrame(demo_data)# help(df)print(df.to_json(force_ascii=False))print(df.to_csv())</code></pre><p>注意编码问题</p><h2 id="中文乱码问题"><a href="#中文乱码问题" class="headerlink" title="中文乱码问题"></a>中文乱码问题</h2><pre><code class="python">def chinese(txt):    if type(txt) is bytes:        txt = txt.decode(&#39;unicode_escape&#39;)    if type(txt) is str:        txt = txt.encode(&#39;latin-1&#39;).decode(&#39;unicode_escape&#39;)    return txt</code></pre><p>遇到类似于<code>\u5267\u60c5</code>的情况，有效</p><h2 id="时间"><a href="#时间" class="headerlink" title="时间"></a>时间</h2><h3 id="time"><a href="#time" class="headerlink" title="time"></a>time</h3><ol><li>time.time() 读取1970-01-01 00:00:00至当前系统时间的秒数，返回值是个浮点数，即包含了毫秒数、尾秒数等信息<ul><li>存在2038限制</li></ul></li><li>time.sleep() 可以理解为Java中的Thread.sleep()</li></ol><h3 id="datetime-datetime"><a href="#datetime-datetime" class="headerlink" title="datetime.datetime"></a>datetime.datetime</h3><ol><li>datetime是库名，库内有一个class也叫datetime，即datetime数据类型，代表日期时间</li><li>构造datetime<ul><li>dt = datetime.datetime.now()</li><li>dt = datetime.datetime(2012, 12, 31, 0, 0, 0)<ul><li>可以看一眼构造方法，datetime精确到微秒，还支持时区信息</li></ul></li><li>dt = datetime.datetime.fromtimestamp(time.time())</li></ul></li><li>解析datetime<ul><li>Year = dt.year</li><li>day = dt.day</li><li>…etc</li></ul></li><li>datatime支持<code>&lt;</code>、<code>&gt;</code>、<code>==</code>、<code>!=</code>的比较</li></ol><h3 id="datetime-timedelta"><a href="#datetime-timedelta" class="headerlink" title="datetime.timedelta"></a>datetime.timedelta</h3><ol><li><p>datetime库中还有一个class是timedelta，代表时间的变化量</p></li><li><p>datetime.timedelta.total_seconds() 返回变化量折合的秒数</p></li><li><p>timedelta可以直接与datetime相加，两个datetime相减直接返回timedelta类型。<strong>Python的类型转换真是太灵活了</strong></p></li></ol><h3 id="格式化"><a href="#格式化" class="headerlink" title="格式化"></a>格式化</h3><ol><li><p>dt.strftime(‘%Y-%m-%d %H:%M:%S’)</p></li><li><p>string -&gt; datetime的函数是strftime</p></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Python</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Python</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>nginx初始配置</title>
+    <link href="/posts/nginx-init-conf/"/>
+    <url>/posts/nginx-init-conf/</url>
+    
+    <content type="html"><![CDATA[<p>过时原因：没什么用，装个nginx都有</p><p>vi /etc/nginx/nginx.conf</p><pre><code class="nginx">#user  nobody;worker_processes  1;#error_log  logs/error.log;#error_log  logs/error.log  notice;#error_log  logs/error.log  info;#pid        logs/nginx.pid;events {    worker_connections  1024;}http {    include       mime.types;    default_type  application/octet-stream;    #log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;    #                  &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;    #                  &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;    #access_log  logs/access.log  main;    sendfile        on;    #tcp_nopush     on;    #keepalive_timeout  0;    keepalive_timeout  65;    #gzip  on;    server {        listen       80;        server_name  localhost;        #charset koi8-r;        #access_log  logs/host.access.log  main;        location / {            root   html;            index  index.html index.htm;        }        #error_page  404              /404.html;        # redirect server error pages to the static page /50x.html        #        error_page   500 502 503 504  /50x.html;        location = /50x.html {            root   html;        }        # proxy the PHP scripts to Apache listening on 127.0.0.1:80        #        #location ~ \.php$ {        #    proxy_pass   http://127.0.0.1;        #}        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000        #        #location ~ \.php$ {        #    root           html;        #    fastcgi_pass   127.0.0.1:9000;        #    fastcgi_index  index.php;        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;        #    include        fastcgi_params;        #}        # deny access to .htaccess files, if Apache&#39;s document root        # concurs with nginx&#39;s one        #        #location ~ /\.ht {        #    deny  all;        #}    }    # another virtual host using mix of IP-, name-, and port-based configuration    #    #server {    #    listen       8000;    #    listen       somename:8080;    #    server_name  somename  alias  another.alias;    #    location / {    #        root   html;    #        index  index.html index.htm;    #    }    #}    # HTTPS server    #    #server {    #    listen       443 ssl;    #    server_name  localhost;    #    ssl_certificate      cert.pem;    #    ssl_certificate_key  cert.key;    #    ssl_session_cache    shared:SSL:1m;    #    ssl_session_timeout  5m;    #    ssl_ciphers  HIGH:!aNULL:!MD5;    #    ssl_prefer_server_ciphers  on;    #    location / {    #        root   html;    #        index  index.html index.htm;    #    }    #}}</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Nginx</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Mac OS常用环境、软件</title>
+    <link href="/posts/macos-softwares/"/>
+    <url>/posts/macos-softwares/</url>
+    
+    <content type="html"><![CDATA[<h2 id="Homebrew"><a href="#Homebrew" class="headerlink" title="Homebrew"></a>Homebrew</h2><pre><code class="shell">$ ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;</code></pre><h2 id="一般软件"><a href="#一般软件" class="headerlink" title="一般软件"></a>一般软件</h2><h3 id="Alfred-（代替spotlight）"><a href="#Alfred-（代替spotlight）" class="headerlink" title="Alfred （代替spotlight）"></a>Alfred （代替spotlight）</h3><pre><code class="shell">$ brew cask install alfred</code></pre><h3 id="Magnet-（快速调整当前窗口的大小和位置）"><a href="#Magnet-（快速调整当前窗口的大小和位置）" class="headerlink" title="Magnet （快速调整当前窗口的大小和位置）"></a>Magnet （快速调整当前窗口的大小和位置）</h3><h3 id="7-Zip"><a href="#7-Zip" class="headerlink" title="7 Zip"></a>7 Zip</h3><pre><code class="shell">$ brew cask install p7zip</code></pre><h3 id="Google-Chrome"><a href="#Google-Chrome" class="headerlink" title="Google Chrome"></a>Google Chrome</h3><pre><code class="shell">$ brew cask install google-chrome</code></pre><h3 id="OneDrive"><a href="#OneDrive" class="headerlink" title="OneDrive"></a>OneDrive</h3><pre><code class="shell">$ brew cask install onedrive</code></pre><h3 id="OneNote"><a href="#OneNote" class="headerlink" title="OneNote"></a>OneNote</h3><p>通过App Store安装</p><h3 id="Microsoft-Office-2019"><a href="#Microsoft-Office-2019" class="headerlink" title="Microsoft Office 2019"></a>Microsoft Office 2019</h3><h3 id="Xmind-ZEN"><a href="#Xmind-ZEN" class="headerlink" title="Xmind ZEN"></a>Xmind ZEN</h3><pre><code class="shell">$ brew cask install xmind-zen</code></pre><h3 id="Typora"><a href="#Typora" class="headerlink" title="Typora"></a>Typora</h3><pre><code class="shell">$ brew cask install typora</code></pre><h3 id="IINA-（视频播放器）"><a href="#IINA-（视频播放器）" class="headerlink" title="IINA （视频播放器）"></a>IINA （视频播放器）</h3><pre><code class="shell">$ brew cask install iina</code></pre><h3 id="网易云音乐"><a href="#网易云音乐" class="headerlink" title="网易云音乐"></a>网易云音乐</h3><pre><code class="shell">$ brew cask install neteasemusic</code></pre><h3 id="有道词典"><a href="#有道词典" class="headerlink" title="有道词典"></a>有道词典</h3><pre><code class="shell">$ brew cask install youdaodict</code></pre><h3 id="QQ"><a href="#QQ" class="headerlink" title="QQ"></a>QQ</h3><pre><code class="shell">$ brew cask install qq</code></pre><h3 id="微信"><a href="#微信" class="headerlink" title="微信"></a>微信</h3><pre><code class="shell">$ brew cask install wechat</code></pre><h3 id="钉钉"><a href="#钉钉" class="headerlink" title="钉钉"></a>钉钉</h3><pre><code class="shell">$ brew cask install dingtalk</code></pre><h3 id="Skim-（PDF阅读器）"><a href="#Skim-（PDF阅读器）" class="headerlink" title="Skim （PDF阅读器）"></a>Skim （PDF阅读器）</h3><pre><code class="shell">$ brew cask install skim</code></pre><h3 id="Snipaste-（截图工具）"><a href="#Snipaste-（截图工具）" class="headerlink" title="Snipaste （截图工具）"></a>Snipaste （截图工具）</h3><pre><code class="shell">$ brew cask install snipaste</code></pre><h3 id="迅雷"><a href="#迅雷" class="headerlink" title="迅雷"></a>迅雷</h3><pre><code class="shell">$ brew cask install thunder</code></pre><h3 id="百度网盘"><a href="#百度网盘" class="headerlink" title="百度网盘"></a>百度网盘</h3><pre><code class="shell">$ brew cask install baidunetdisk</code></pre><h3 id="小狼毫"><a href="#小狼毫" class="headerlink" title="小狼毫"></a>小狼毫</h3><pre><code class="shell">$ brew cask install squirrel</code></pre><h3 id="iStat-Menus-（硬件指标实时监控）"><a href="#iStat-Menus-（硬件指标实时监控）" class="headerlink" title="iStat Menus （硬件指标实时监控）"></a>iStat Menus （硬件指标实时监控）</h3><h3 id="Irvue-（壁纸）"><a href="#Irvue-（壁纸）" class="headerlink" title="Irvue （壁纸）"></a>Irvue （壁纸）</h3><p>通过App Store安装</p><h3 id="Word-Clock-（屏保）"><a href="#Word-Clock-（屏保）" class="headerlink" title="Word Clock （屏保）"></a>Word Clock （屏保）</h3><h3 id="Inpaint"><a href="#Inpaint" class="headerlink" title="Inpaint"></a>Inpaint</h3><h3 id="Bartender-（管理Mac-OS顶部菜单栏的图标）"><a href="#Bartender-（管理Mac-OS顶部菜单栏的图标）" class="headerlink" title="Bartender （管理Mac OS顶部菜单栏的图标）"></a>Bartender （管理Mac OS顶部菜单栏的图标）</h3><h2 id="开发用软件"><a href="#开发用软件" class="headerlink" title="开发用软件"></a>开发用软件</h2><h3 id="iTerm-（代替Mac-OS自带的终端）"><a href="#iTerm-（代替Mac-OS自带的终端）" class="headerlink" title="iTerm （代替Mac OS自带的终端）"></a>iTerm （代替Mac OS自带的终端）</h3><pre><code class="shell">$ brew cask install iterm2</code></pre><h2 id="Zsh、Oh-my-zsh"><a href="#Zsh、Oh-my-zsh" class="headerlink" title="Zsh、Oh my zsh"></a>Zsh、Oh my zsh</h2><pre><code class="shell">$ zsh --version$ chsh -s /bin/zsh$ sh -c &quot;$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;</code></pre><h3 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h3><pre><code class="shell">$ brew install git </code></pre><h3 id="VisualVM"><a href="#VisualVM" class="headerlink" title="VisualVM"></a>VisualVM</h3><pre><code class="shell">$ brew cask install visualvm</code></pre><h3 id="Sourcetree"><a href="#Sourcetree" class="headerlink" title="Sourcetree"></a>Sourcetree</h3><pre><code class="shell">$ brew cask install sourcetree</code></pre><h3 id="Jetbrains"><a href="#Jetbrains" class="headerlink" title="Jetbrains"></a>Jetbrains</h3><pre><code class="shell">$ brew cask install jetbrains-toolbox</code></pre><h3 id="Visual-Studio-Code"><a href="#Visual-Studio-Code" class="headerlink" title="Visual Studio Code"></a>Visual Studio Code</h3><pre><code class="shell">$ brew cask install visual-studio-code</code></pre><h3 id="Postman"><a href="#Postman" class="headerlink" title="Postman"></a>Postman</h3><pre><code class="shell">$ brew cask install postman</code></pre><h3 id="Medis"><a href="#Medis" class="headerlink" title="Medis"></a>Medis</h3><h3 id="TextLab"><a href="#TextLab" class="headerlink" title="TextLab"></a>TextLab</h3><h3 id="Oracle-JDK"><a href="#Oracle-JDK" class="headerlink" title="Oracle JDK"></a>Oracle JDK</h3><p><a href="https://www.oracle.com/java/technologies/javase-downloads.html" target="_blank" rel="noopener">https://www.oracle.com/java/technologies/javase-downloads.html</a></p><pre><code class="shell">$ vi ~/.zshrcsource ~/.bash_profile;$ source ~/.bash_profile</code></pre><h3 id="Python-3、pip"><a href="#Python-3、pip" class="headerlink" title="Python 3、pip"></a>Python 3、pip</h3><p><a href="https://www.python.org/downloads/" target="_blank" rel="noopener">https://www.python.org/downloads/</a></p><h3 id="各种服务与中间件"><a href="#各种服务与中间件" class="headerlink" title="各种服务与中间件"></a>各种服务与中间件</h3><pre><code class="bash">$ brew install mysql$ brew install redis</code></pre><h3 id="sshpass"><a href="#sshpass" class="headerlink" title="sshpass"></a>sshpass</h3><pre><code class="shell">$ brew install https://raw.githubusercontent.com/kadwanev/bigboybrew/master/Library/Formula/sshpass.rb</code></pre><blockquote><p>直接使用<code>brew install sshpass</code>会报错，因为这个软件会令人养成不好的安全习惯，所以需要通过github地址安装</p></blockquote><h2 id="字体"><a href="#字体" class="headerlink" title="字体"></a>字体</h2><p><a href="https://www.onlinewebfonts.com/download/9798f64007ae3426b2336e57dae4149c" target="_blank" rel="noopener">Microsoft YaHei Mono</a></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Mac OS</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>总结</tag>
+      
+      <tag>MySQL</tag>
+      
+      <tag>Redis</tag>
+      
+      <tag>Git</tag>
+      
+      <tag>Mac OS</tag>
+      
+      <tag>Python</tag>
+      
+      <tag>7Zip</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>组合注解</title>
+    <link href="/posts/concat-annotation/"/>
+    <url>/posts/concat-annotation/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST将会介绍一个关于注解的特性。</p><h2 id="原效果"><a href="#原效果" class="headerlink" title="原效果"></a>原效果</h2><p>现在，有一个典型的RESTful控制器</p><pre><code class="java">@RestController@RequestMapping(&quot;/demo&quot;)public class DemoController {    @PostMapping(&quot;/doSometing&quot;)    public Long doSomething() {        return 1L;            }}</code></pre><p>可以看到，需要类级注解除了<code>@RestController</code>以外，还需要<code>@RequestMapping</code>。</p><h2 id="定义组合注解"><a href="#定义组合注解" class="headerlink" title="定义组合注解"></a>定义组合注解</h2><p>可以通过自定义一个注解，将<code>@RestController</code>和<code>@RequestMapping</code>组合起来。</p><pre><code class="java">/** * @RestController与@RequestMapping的组合注解 *  * @author Deolin 2019-02-08 */@Target(ElementType.TYPE)@Retention(RetentionPolicy.RUNTIME)@Documented@RestController@RequestMappingpublic @interface RestMapping {    @AliasFor(&quot;path&quot;)    String[] value() default {};    @AliasFor(&quot;value&quot;)    String[] path() default {};}</code></pre><h2 id="使用组合注解"><a href="#使用组合注解" class="headerlink" title="使用组合注解"></a>使用组合注解</h2><pre><code class="java">@RestMapping(&quot;/demo&quot;)public class DemoController {    @PostMapping(&quot;/doSometing&quot;)    public Long doSomething() {        return 1L;            }}</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Lemon - 米津玄師</title>
+    <link href="/posts/lyric-lemon/"/>
+    <url>/posts/lyric-lemon/</url>
+    
+    <content type="html"><![CDATA[<h1 id="Lemon-米津玄師"><a href="#Lemon-米津玄師" class="headerlink" title="Lemon - 米津玄師"></a>Lemon - 米津玄師</h1><blockquote><p>应该是Deolin在2018年听得最多的一首歌了</p></blockquote><p><img src="/images/lyric-lemon-01.png" srcset="/img/loading.gif" alt=""></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>日本語</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>歌詞</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>日志问题</title>
+    <link href="/posts/log/"/>
+    <url>/posts/log/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST将会介绍</p><ul><li>Java有哪些日志框架</li><li>日志门面和日志实现的区别、日志适配器是什么</li></ul><h2 id="Java中的日志框架"><a href="#Java中的日志框架" class="headerlink" title="Java中的日志框架"></a>Java中的日志框架</h2><p>Java世界中，有非常多的日志框架，它们大概可以分为3个阵营</p><p><img src="/images/log-01.png" srcset="/img/loading.gif" alt=""></p><h2 id="日志框架的演变"><a href="#日志框架的演变" class="headerlink" title="日志框架的演变"></a>日志框架的演变</h2><ol><li><p>Log4j</p><p>Apache的Log4j早在2001就有了，作为一个第三方库，它在远古时代被广泛使用，性能比日后出现的其他第三方库要低。</p></li></ol><ol start="2"><li><p>JUL</p><p>JUL指的是<code>java.util.logging</code>类，它在JDK1.4被加入，它功能性不如Log4j，性能也不太好。</p></li></ol><ol start="3"><li><p>Apache Commons Logging （官方简称为JCL）</p><p>现在，有两个日志框架了——Log4j和JUL，他们都是日志实现。为了不让其他第三方库与这两个日志框架产生耦合，Apache推出了一个日志门面——JCL。</p><p>JCL的出现，使得所有希望打印日志的地方，调用JCL提供的API就可以了，不用关注这条日志是由哪种实现打印的，实现了解耦。</p><p>至此，Java世界只有一个流行的日志门面。</p></li></ol><ol start="4"><li><p>SLF4J、Logback等</p><p>然而，JCL提供的API很容易让开发者写出性能不好的代码。于是，SLF4J诞生了，它也是日志门面，提供的API比JCL更合理一些。</p><p>Logback是Log4j的继承，性能比后者更好，同时，还出现了SLF4J-nop、SLF4J-simple等其他日志实现。</p><p>至此，Java世界存在了2个流行的日志门面和许多常用的日志实现了，也就是说，出现了两大阵营</p></li></ol><ol start="5"><li><p>日志适配器</p><p>两大阵营各自日志门面无法适配到另一个阵营的日志实现，第三方库的日志耦合问题又产生了。这次，SLF4J的作者做了许多日志适配器，让两个日志门面可以适配到所有常用的日志实现上。</p><p>至此，开发者终于可以调着SLF4J的API，写着Log4j或是Logback的配置文件，日志问题告一段落。</p></li></ol><ol start="6"><li><p>Log4j2</p><p>Apache终于推出了Log4j2，它跟Log4j完全不同，它模仿<code>SLF4J/Logback</code>的设计模似，自成一个阵营，Log4j-api对应SLF4J，Log4j-core对应Logback。Log4j2无论是门面还是实现，性能都非常强。Log4j2的出现还带来了大量的日志适配器，为了能跟已经存在的两个日志阵营适配起来。</p><p>至此，三大阵营的关系是这样的</p><p><img src="/images/log-02.jpg" srcset="/img/loading.gif" alt="img"></p></li></ol><p>图片来源 - <a href="https://zhuanlan.zhihu.com/p/24272450" target="_blank" rel="noopener">Java日志全解析（上） - 源流</a></p><h2 id="选用日志框架"><a href="#选用日志框架" class="headerlink" title="选用日志框架"></a>选用日志框架</h2><p>日志框架那么多，可以按照以下的思路来选择它们</p><ol><li><p>选择一个性能好的日志实现</p><p>推荐Logback或Log4j2-core，选择哪个可能取决你熟悉哪种实现的配置文件写法。</p></li><li><p>选择若干个日志适配器</p><p>确保上图的三个日志门面都能跟你选择的日志实现连接起来</p></li><li><p>不需要选择日志门面加入你的项目</p><p>除非你项目依赖的第三方库真的非常少，否则的话，第三方库们十有八九提供了3个日志门面</p></li><li><p>选一个你喜欢的日志门面来调用它</p><pre><code class="java">public class Demo {    // JCL    private static final org.apache.commons.logging.Log jcl = org.apache.commons.logging.LogFactory.getLog(Demo.class);    // SLF4J    private static final org.slf4j.Logger slf4j = org.slf4j.LoggerFactory.getLogger(Demo.class);    // Log4j2-api    private static final org.apache.logging.log4j.Logger log4j2 = org.apache.logging.log4j.LogManager.getLogger(LogExample.class);}</code></pre><p>如果项目引入了<code>Lombok</code>，那事情就更简单了</p><pre><code class="java">// @CommonsLog// @SLF4J@Log4j2public class Demo {}</code></pre></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Log4j2</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>网站升级</title>
+    <link href="/posts/long-strange-trip-upgrade/"/>
+    <url>/posts/long-strange-trip-upgrade/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这个双休日（指2018-12-08到2018-12-09）将<strong>Deolin 千奇百怪的漫长旅行</strong>全站重建升级了一下，这篇POST整理了所有的变动点。</p><h2 id="变动点"><a href="#变动点" class="headerlink" title="变动点"></a>变动点</h2><ul><li><code>Hexo</code>的版本升级到<code>3.8.0</code>，<code>nexT</code>的版本升级到<code>6.6.0</code></li></ul><ul><li><p>POST、主题、全站配置等已同步到<a href="https://github.com/spldeolin/long-strange-trip" target="_blank" rel="noopener">Github</a>，以往，它们是保存在Deolin的<code>OneDrive</code>中的</p><p>从现在起，所有关于网站的更新都可以通过<code>commits</code>看到，当然你也可以为网站<code>pull requests</code></p></li></ul><ul><li>每个POST追加最近更新时间</li></ul><ul><li>现在，<code>主页</code>页面上所有的POST都是以最近一次更新时间倒序的，更新将会得到及时反映</li></ul><ul><li>启用对POST和全站的访问人数统计，启用评论功能，分别选用<code>busuanzi</code>和<code>valine</code>作为两者的实现</li></ul><ul><li>更换<code>favicon</code>，全站语言改为<code>zh-CN</code></li></ul><ul><li>右侧<code>sidebar</code>设置为始终显示，并在放出Deolin的微信</li></ul><ul><li>其他等待你发现的微小变动</li></ul><h2 id="下阶段安排"><a href="#下阶段安排" class="headerlink" title="下阶段安排"></a>下阶段安排</h2><ul><li><input disabled="" type="checkbox"> 更新一些POST中已经过时的内容</li></ul><ul><li><input disabled="" type="checkbox"> 尝试上传一些生活上的内容</li></ul>]]></content>
+    
+    
+    <categories>
+      
+      <category>Linux</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Hexo</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>图片压缩（Google Thumbnailator）</title>
+    <link href="/posts/thumbnailator/"/>
+    <url>/posts/thumbnailator/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><code>Thumbnailator</code>是Google提供的，用于生成高品质压缩图的类库，具体介绍可以参照<a href="http://code.google.com/p/thumbnailator" target="_blank" rel="noopener">http://code.google.com/p/thumbnailator</a>。这篇POST整理了<code>Thumbnailator</code>的常用API和生成出来的效果。</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>原图 kaneki.png (1712*962)</p><p><img src="/images/thumbnailator/kaneki.png" srcset="/img/loading.gif" alt=""></p><pre><code class="java">// 缩小（如果原图长比宽大，则长缩小到150，宽根据长的缩小比例缩小；反之同理）Thumbnails.of(&quot;kaneki.png&quot;).size(150, 150).toFile(&quot;smaller-size.png&quot;);</code></pre><p><img src="/images/thumbnailator/smaller-size.png" srcset="/img/loading.gif" alt=""></p><pre><code class="java">// 放大（如果原图长比宽大，则长放大到2048，宽根据长的放大比例放大；反之同理）Thumbnails.of(&quot;kaneki.png&quot;).size(2048, 1536).toFile(&quot;larger-size.png&quot;);</code></pre><p><img src="/images/thumbnailator/larger-size.png" srcset="/img/loading.gif" alt=""></p><pre><code class="java">// 缩小（最高质量）Thumbnails.of(&quot;kaneki.png&quot;).size(150, 150).outputQuality(1F)                .toFile(&quot;smaller-size-with-high-quality.png&quot;);</code></pre><p><img src="/images/thumbnailator/smaller-size-with-high-quality.png" srcset="/img/loading.gif" alt=""></p><pre><code class="java">// 拉伸到指定宽高// 这个方法适用于 例如需要用户上传500*500的图片，但用户切割误差上传了498*500的图片，为了不让图片两边显示出白色背景细线，所以把图片拉伸到500*500Thumbnails.of(&quot;kaneki.png&quot;).size(150, 300).keepAspectRatio(false).toFile(&quot;fixed-size.png&quot;);</code></pre><p><img src="/images/thumbnailator/fixed-size.png" srcset="/img/loading.gif" alt=""></p><pre><code class="java">// 等比缩放Thumbnails.of(&quot;kaneki.png&quot;).scale(0.5D).toFile(&quot;smaller-scaled.png&quot;);</code></pre><p><img src="/images/thumbnailator/smaller-scaled.png" srcset="/img/loading.gif" alt=""></p><pre><code class="java">// 格式转换（缩小硬盘占用）Thumbnails.of(&quot;lemon.bmp&quot;).scale(1D).outputFormat(&quot;jpg&quot;).toFile(lemon.jpg&quot;);</code></pre><p><img src="/images/thumbnailator/lemon.jpg" srcset="/img/loading.gif" alt=""></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>工具类</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>阅读Spring Mvc Showcase源码后的收获</title>
+    <link href="/posts/spring-mvc-showcase/"/>
+    <url>/posts/spring-mvc-showcase/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><a href="https://github.com/spring-projects/spring-mvc-showcase" target="_blank" rel="noopener">Spring Mvc Showcase</a>是Spring官方的示例项目，向开发者提供了关于Spring Web MVC的实践指导。</p><p>Deolin昨天晚上阅读了这个项目的源码。</p><p>Deolin昨天晚上获得了较大的收获。</p><h2 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h2><p>项目主体只有控制层，并集成了Jetty的Maven插件，所以直接运行即可。</p><pre><code class="shell">$ mvn jetty:run</code></pre><p>访问</p><pre><code class="http">http://localhost:8080/spring-mvc-showcase</code></pre><h2 id="RequestParam绑定列表对象"><a href="#RequestParam绑定列表对象" class="headerlink" title="@RequestParam绑定列表对象"></a>@RequestParam绑定列表对象</h2><pre><code class="http">/demo?values=1&amp;values=2&amp;values=3</code></pre><pre><code class="java">@GetMappingvoid get(@RequestParam List&lt;Integer&gt; values) {}</code></pre><h2 id="使用DTO绑定多个-RequestParam参数"><a href="#使用DTO绑定多个-RequestParam参数" class="headerlink" title="使用DTO绑定多个@RequestParam参数"></a>使用DTO绑定多个@RequestParam参数</h2><pre><code class="http">/demo?v1=&amp;v2=2&amp;v3=&amp;v4=true</code></pre><p><strong>过去的方式</strong></p><pre><code class="java">void get(@RequestParam(defaultValue = &quot;a&quot;) String v1,        @RequestParam @Max(10) Integer v2,        @RequestParam(required = false) BigDecimal v3,        @RequestParam Boolean v4) {}</code></pre><p><strong>使控制层更简练的方式</strong></p><pre><code class="java">void get(@Valid JavaBean javaBean) {}</code></pre><pre><code class="java">@Dataclass JavaBean {    private String v1;    @NotNull // 之前没有声明required = false都需要NotNull    @Max(10)    private Integer v2;    private BigDecimal v3;    @NotNull    private Boolean v4;    public JavaBean() {        // defaultValue        v1 = &quot;a&quot;;    }}</code></pre><p>注意这种用法与<strong>绑定请求体</strong>是不同的，对时间类型的格式化注解也是不同的。下面两张图可以直观地反映它们的区别</p><p><img src="/images/spring-mvc-showcase-01.png" srcset="/img/loading.gif" alt=""></p><p><img src="/images/spring-mvc-showcase-02.png" srcset="/img/loading.gif" alt=""></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Spring</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>虚拟机类加载机制 思维导图</title>
+    <link href="/posts/jvm-classload/"/>
+    <url>/posts/jvm-classload/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Deolin花了点时间重读了《深入理解Java虚拟机 第二版》的“虚拟机类加载机制”章节</p><h2 id="XMind"><a href="#XMind" class="headerlink" title="XMind"></a>XMind</h2><p><img src="/images/mindmapping-jvm-classload-01.png" srcset="/img/loading.gif" alt=""></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>思维导图</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>搭建Minecraft服务器</title>
+    <link href="/posts/deploy-minecraft-server/"/>
+    <url>/posts/deploy-minecraft-server/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST介绍了如何部署一个Minecraft服务器并与好友一起玩耍。</p><p>由于Deolin选用阿里云的CentOS作为部署服务器，所以在开始这篇POST之前，最好能对Linux有一些了解。</p><h2 id="安装Java"><a href="#安装Java" class="headerlink" title="安装Java"></a>安装Java</h2><p>首先要为服务器安装Java，可以参照<a href="http://spldeolin.com/posts/centos-softwares/#JDK">这里</a>。</p><h2 id="Minecraft版本的选择"><a href="#Minecraft版本的选择" class="headerlink" title="Minecraft版本的选择"></a>Minecraft版本的选择</h2><p>这里选择了1.8.8，原因是1.8有了粘液块，pureDB材质包也从1.8开始支持3D方块和3D物品。</p><p>其他版本也是可以的，只要有对应版本的服务端能够选择即可。</p><h2 id="客户端与启动器"><a href="#客户端与启动器" class="headerlink" title="客户端与启动器"></a>客户端与启动器</h2><p>想要启动Minecraft客户端需要<code>.minecraft</code>和启动器，</p><p>从<a href="http://www.mcbbs.net/forum.php?mod=viewthread&tid=38297&page=49&ordertype=1#pid547863" target="_blank" rel="noopener">这篇帖子</a>可以下载到这个版本的<code>.minecraft</code>，</p><p>从<a href="https://github.com/huanghongxun/HMCL/releases" target="_blank" rel="noopener">这个GitHub</a>上可以下载到最新的HMCL启动器。</p><h2 id="材质包"><a href="#材质包" class="headerlink" title="材质包"></a>材质包</h2><p><a href="http://bdcraft.net/purebdcraft-minecraft" target="_blank" rel="noopener">Sphax pureDB &amp; 3D item &amp; 3D block</a></p><blockquote><p>3D item 和 3D block的贴图会变成紫色，非常奇怪</p><p>后来发现256x的pureDB不会发生这个问题。</p><p>64x也不会发生这个问题，似乎只有128x会</p></blockquote><h2 id="1-8-8中文输入补丁"><a href="#1-8-8中文输入补丁" class="headerlink" title="1.8.8中文输入补丁"></a>1.8.8中文输入补丁</h2><ol><li>确保客户端集成了<code>forge</code></li><li><a href="https://github.com/zlainsama/InputFix/releases" target="_blank" rel="noopener">这个GitHub</a>上可以下载到最新的中文输入补丁。</li><li>将补丁放入客户端的<code>mod</code>目录下</li></ol><h2 id="服务端的选择"><a href="#服务端的选择" class="headerlink" title="服务端的选择"></a>服务端的选择</h2><p>对于好友之间玩耍的服务器而言，很多认证、防作弊插件都是不需要的，</p><p>所以简单来说，如果需要集成<code>mod</code>，则选择集成了<code>forge</code>的官方<code>minecraft_server</code>，</p><p>如果不需要集成<code>mod</code>，则选择<code>spigot</code>。</p><h2 id="spigot服务端"><a href="#spigot服务端" class="headerlink" title="spigot服务端"></a>spigot服务端</h2><p><a href="https://getbukkit.org/download/spigot" target="_blank" rel="noopener">https://getbukkit.org/download/spigot</a></p><h2 id="服务端安装forge"><a href="#服务端安装forge" class="headerlink" title="服务端安装forge"></a>服务端安装forge</h2><p>spigot暂时没有找到集成forge的方法，所以选择官方的<code>minecraft_server.jar</code></p><p><a href="https://mcversions.net/" target="_blank" rel="noopener">https://mcversions.net/</a></p><p><a href="https://files.minecraftforge.net/maven/net/minecraftforge/forge/index_1.8.8.html" target="_blank" rel="noopener">https://files.minecraftforge.net/maven/net/minecraftforge/forge/index_1.8.8.html</a></p><p>选择<code>Windows Installer</code></p><p>运行后选择<code>Install client</code>并指定服务端<code>minecraft_server.jar</code>所在的目录</p><h2 id="部署流程"><a href="#部署流程" class="headerlink" title="部署流程"></a>部署流程</h2><ol><li><p>最好在开发环境下<code>java -jar</code>一次，生成一下配置文件</p></li><li><p>第一启动会失败，需要把<code>eula.txt</code>的<code>eula=false</code>改为<code>true</code></p></li><li><p><code>server.properties</code>常用的配置</p><ol><li><p>正版验证</p><pre><code class="properties">online-mode=false</code></pre></li><li><p>PVP</p><pre><code class="properties">pvp=false</code></pre></li></ol></li><li><p>配置完毕后打包成<code>tar.gz</code>上传到服务器</p></li><li><p>服务器解压后执行命令启动</p><pre><code class="shell">$ nohup java -jar -Xmx350m /opt/mc-1.8.8-server/spigot-1.8.8-R0.1.jar &gt; /opt/mc-1.8.8-server/server-consolo.log 2&gt;&amp;1&amp;</code></pre></li><li><p>查看日志</p><pre><code class="shell">$ tail -f /opt/mc-1.8.8-server/logs/latest.log</code></pre></li></ol><h2 id="客户端安装forge"><a href="#客户端安装forge" class="headerlink" title="客户端安装forge"></a>客户端安装forge</h2><p>运行<code>Windows Installer</code>后选择<code>Install server</code>并指定客户端<code>.minecraft</code>目录</p><h2 id="mods集成"><a href="#mods集成" class="headerlink" title="mods集成"></a>mods集成</h2><p>集成了<code>forge</code>之后，绝大多数的<code>mod</code>直接放到<code>mod</code>目录下就可以了，区别在于有些<code>mod</code>服务端也需要集成，有些则不需要，下面是一些简单的经验——</p><ol><li>影响地图生成或是服务器行为<code>mod</code>需要服务端和客户端都集成，如“更多生物群落”、“精英怪“之类的；</li><li>只影响玩家自身的<code>mod</code>只需要客户端集成，如”R键整理“、”小地图“之类的。</li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Minecraft</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Minecraft</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>なきむし。</title>
+    <link href="/posts/lyric-nakimushi/"/>
+    <url>/posts/lyric-nakimushi/</url>
+    
+    <content type="html"><![CDATA[<h1 id="なきむし。"><a href="#なきむし。" class="headerlink" title="なきむし。"></a>なきむし。</h1><blockquote><p>第一次听是15年夜跑的时候</p></blockquote><h3 id="僕は弱虫で、嫌なんだ"><a href="#僕は弱虫で、嫌なんだ" class="headerlink" title="僕は弱虫で、嫌なんだ"></a>僕は弱虫で、嫌なんだ</h3><p>　　　よわむし　　いや</p><h3 id="あなたの笑顔が渗んでく"><a href="#あなたの笑顔が渗んでく" class="headerlink" title="あなたの笑顔が渗んでく"></a>あなたの笑顔が渗んでく</h3><p>　　　　　　　　　　にじ</p><h3 id="小さくなって、震えるせなかを"><a href="#小さくなって、震えるせなかを" class="headerlink" title="小さくなって、震えるせなかを"></a>小さくなって、震えるせなかを</h3><p>ちい　　　　　　　　ふる</p><h3 id="僕はただ見てることしか"><a href="#僕はただ見てることしか" class="headerlink" title="僕はただ見てることしか"></a>僕はただ見てることしか</h3><p>ぼく　　　　み</p><h3 id="できなかった"><a href="#できなかった" class="headerlink" title="できなかった"></a>できなかった</h3><p>　</p><h3 id="窓たたく風の音"><a href="#窓たたく風の音" class="headerlink" title="窓たたく風の音"></a>窓たたく風の音</h3><p>まど　　　　　　　おと</p><h3 id="強くて眠れない夜"><a href="#強くて眠れない夜" class="headerlink" title="強くて眠れない夜"></a>強くて眠れない夜</h3><p>　　　　ねむ　　　　よる</p><h3 id="本当に煩いのは"><a href="#本当に煩いのは" class="headerlink" title="本当に煩いのは"></a>本当に煩いのは</h3><p>　　　　うるさ</p><h3 id="きっと心のざわめき"><a href="#きっと心のざわめき" class="headerlink" title="きっと心のざわめき"></a>きっと心のざわめき</h3><p>　</p><h3 id="あなたのことを思うよ"><a href="#あなたのことを思うよ" class="headerlink" title="あなたのことを思うよ"></a>あなたのことを思うよ</h3><p>　　　　　　　　　　おも</p><h3 id="笑ってるつもりなのに"><a href="#笑ってるつもりなのに" class="headerlink" title="笑ってるつもりなのに"></a>笑ってるつもりなのに</h3><p>わら</p><h3 id="鼻の奥の方ツンとなって少し痛い"><a href="#鼻の奥の方ツンとなって少し痛い" class="headerlink" title="鼻の奥の方ツンとなって少し痛い"></a>鼻の奥の方ツンとなって少し痛い</h3><p>はな　おく　ほう　　　　　　　　　　　いた</p><h3 id="泣きたくなんかないのに"><a href="#泣きたくなんかないのに" class="headerlink" title="泣きたくなんかないのに"></a>泣きたくなんかないのに</h3><p>な</p><h3 id="僕は泣き虫で、悔しくて"><a href="#僕は泣き虫で、悔しくて" class="headerlink" title="僕は泣き虫で、悔しくて"></a>僕は泣き虫で、悔しくて</h3><p>　　　　　　　　　　くや</p><h3 id="あなたの笑顔を胸に刺さる"><a href="#あなたの笑顔を胸に刺さる" class="headerlink" title="あなたの笑顔を胸に刺さる"></a>あなたの笑顔を胸に刺さる</h3><p>　　　　　　　　　　むね　　さ</p><h3 id="こんな時でも、笑っていられる"><a href="#こんな時でも、笑っていられる" class="headerlink" title="こんな時でも、笑っていられる"></a>こんな時でも、笑っていられる</h3><p>　</p><h3 id="あなたはやっぱり強くて優しい人"><a href="#あなたはやっぱり強くて優しい人" class="headerlink" title="あなたはやっぱり強くて優しい人"></a>あなたはやっぱり強くて優しい人</h3><p>　</p><h3 id="降るつつく雨の中"><a href="#降るつつく雨の中" class="headerlink" title="降るつつく雨の中"></a>降るつつく雨の中</h3><p>ふ　　　　　　あめ　　なか</p><h3 id="はかなく散ってゆく花"><a href="#はかなく散ってゆく花" class="headerlink" title="はかなく散ってゆく花"></a>はかなく散ってゆく花</h3><p>　　　　　　ち　　　　　　</p><h3 id="またひとつ過ぎる季節"><a href="#またひとつ過ぎる季節" class="headerlink" title="またひとつ過ぎる季節"></a>またひとつ過ぎる季節</h3><p>　　　　　　　　す　　　きせつ</p><h3 id="温かいものが頬を伝う"><a href="#温かいものが頬を伝う" class="headerlink" title="温かいものが頬を伝う"></a>温かいものが頬を伝う</h3><p>あたた　　　　　　ほほ</p><h3 id="空を見上げたらなんだか"><a href="#空を見上げたらなんだか" class="headerlink" title="空を見上げたらなんだか"></a>空を見上げたらなんだか</h3><p>そら　　みあ</p><h3 id="あなたに会いたくなった"><a href="#あなたに会いたくなった" class="headerlink" title="あなたに会いたくなった"></a>あなたに会いたくなった</h3><p>　　　　　　　あ</p><h3 id="息を切らして走ってく、今も僕は"><a href="#息を切らして走ってく、今も僕は" class="headerlink" title="息を切らして走ってく、今も僕は"></a>息を切らして走ってく、今も僕は</h3><p>いき　　き　　　　はし　　　　　</p><h3 id="強くなんかないけど"><a href="#強くなんかないけど" class="headerlink" title="強くなんかないけど"></a>強くなんかないけど</h3><p>　</p><h3 id="ぼくは泣き虫で、悔しくて"><a href="#ぼくは泣き虫で、悔しくて" class="headerlink" title="ぼくは泣き虫で、悔しくて"></a>ぼくは泣き虫で、悔しくて</h3><p>　</p><h3 id="だけどあなたに今伝えいんだ"><a href="#だけどあなたに今伝えいんだ" class="headerlink" title="だけどあなたに今伝えいんだ"></a>だけどあなたに今伝えいんだ</h3><p>　　　　　　　　　　　　つた</p><h3 id="ただ真っすぐに、僕を見つめる"><a href="#ただ真っすぐに、僕を見つめる" class="headerlink" title="ただ真っすぐに、僕を見つめる"></a>ただ真っすぐに、僕を見つめる</h3><p>　　　ま　　　　　　</p><h3 id="強くて優しいその瞳に答えるために"><a href="#強くて優しいその瞳に答えるために" class="headerlink" title="強くて優しいその瞳に答えるために"></a>強くて優しいその瞳に答えるために</h3><p>　　　　　　　　　　　　ひとみ　こた</p><h3 id="＊いつしか見失ってた、一番大切なあものも"><a href="#＊いつしか見失ってた、一番大切なあものも" class="headerlink" title="＊いつしか見失ってた、一番大切なあものも"></a>＊いつしか見失ってた、一番大切なあものも</h3><p>　　　　　　　みうしな　　　　いちばん　たいせつ</p><h3 id="＊そっとあなたが教えてくれた"><a href="#＊そっとあなたが教えてくれた" class="headerlink" title="＊そっとあなたが教えてくれた"></a>＊そっとあなたが教えてくれた</h3><p>　　　　　　　　　　　　おし</p><h3 id="＊確かにそう思えるから"><a href="#＊確かにそう思えるから" class="headerlink" title="＊確かにそう思えるから"></a>＊確かにそう思えるから</h3><p>　　たし　　　　</p><h3 id="僕は弱虫で、嫌なんだ-1"><a href="#僕は弱虫で、嫌なんだ-1" class="headerlink" title="僕は弱虫で、嫌なんだ"></a>僕は弱虫で、嫌なんだ</h3><p>　</p><h3 id="だけどもっともっと"><a href="#だけどもっともっと" class="headerlink" title="だけどもっともっと"></a>だけどもっともっと</h3><p>　</p><h3 id="強くなるから、あなたのことを"><a href="#強くなるから、あなたのことを" class="headerlink" title="強くなるから、あなたのことを"></a>強くなるから、あなたのことを</h3><p>　</p><h3 id="守れるような、僕になるから"><a href="#守れるような、僕になるから" class="headerlink" title="守れるような、僕になるから"></a>守れるような、僕になるから</h3><p>まも</p><h3 id="だから、少し待ってて"><a href="#だから、少し待ってて" class="headerlink" title="だから、少し待ってて"></a>だから、少し待ってて</h3><p>　　　　　　　　　ま</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>日本語</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>歌詞</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Spring Boot动态profiles的实践</title>
+    <link href="/posts/springboot-active-profiles/"/>
+    <url>/posts/springboot-active-profiles/</url>
+    
+    <content type="html"><![CDATA[<h3 id="Spring-Boot的Profiles属性"><a href="#Spring-Boot的Profiles属性" class="headerlink" title="Spring Boot的Profiles属性"></a>Spring Boot的Profiles属性</h3><p>Spring Boot中有一个profiles的概念，解决了不同环境需要不同配置的问题。</p><p>项目中一般会有多个application.yml文件，<code>application.yml</code> 可以认为是主配置文件，其他的<code>application-dev.yml</code> <code>application-test.yml</code>……可以认为是子配置文件。</p><p>主配置文件中，会定义<code>spring: profiles: active:</code>属性，用于指定某个子配置文件。</p><p>子配置文件中，会定义<code>spring: profiles:</code>属性，用于指定自己是哪个子配置文件。</p><p>被指定的子配置文件中的其他配置，将会覆盖掉主配置文件中的同名属性。可以参考下面的例子</p><pre><code class="yaml"># application.yml配置文件spring:  profiles:    active: devcustom-properties:  one-cookie: 被覆盖的曲奇饼干</code></pre><pre><code class="yaml"># application-dev.yml配置文件spring:  profiles: devcustom-properties:  one-cookie: 开发中的曲奇饼干</code></pre><pre><code class="yaml"># application-prod.yml配置文件spring:  profiles: prodcustom-properties:  one-cookie: 生产中的曲奇饼干</code></pre><pre><code class="java">// 请求方法：测试项目启动后，配置文件中custom-properties: one-cookie:属性值是什么@Value(&quot;${custom-properties.one-cookie}&quot;)private String oneCookie;@GetMapping(&quot;test&quot;)public String test() {    return this.oneCookie;}</code></pre><p>访问<code>http://localhost/test</code>将会得到<code>开发中的曲奇饼干</code>。</p><h3 id="Maven的profiles标签"><a href="#Maven的profiles标签" class="headerlink" title="Maven的profiles标签"></a>Maven的profiles标签</h3><p>到目前为止，可以看到，Spring Boot的<code>spring: profiles: active:</code>必须是硬编码的，每次不同环境打包/调试时，都要主动去改这个属性，显得非常的不方便。</p><p>现在，需要引入Maven的profiles标签，来实现动态指定profiles的效果。</p><p>如下所示，在pom.xml中追加profiles标签。</p><pre><code class="xml">&lt;!--pom.xml--&gt;&lt;profiles&gt;           &lt;!--dev环境--&gt;        &lt;profile&gt;            &lt;id&gt;dev&lt;/id&gt;            &lt;properties&gt;                &lt;profiles.active&gt;dev&lt;/profiles.active&gt;            &lt;/properties&gt;            &lt;!--默认为dev--&gt;            &lt;activation&gt;                &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;            &lt;/activation&gt;        &lt;/profile&gt;        &lt;!--prod环境--&gt;        &lt;profile&gt;            &lt;id&gt;prod&lt;/id&gt;            &lt;properties&gt;                &lt;profiles.active&gt;prod&lt;/profiles.active&gt;            &lt;/properties&gt;        &lt;/profile&gt;    &lt;/profiles&gt;&lt;/profiles&gt;</code></pre><p>并将<code>application.yml</code>的<code>spring: profiles: active:</code>从硬编码更改为与properties标签中的自定义标签一致的占位符。</p><pre><code class="yaml"># application.yml配置文件spring:  profiles:    active: @profiles.active@custom-properties:  one-cookie: 被覆盖的曲奇饼干</code></pre><p>至此，配置完成。</p><h3 id="打包方式"><a href="#打包方式" class="headerlink" title="打包方式"></a>打包方式</h3><p>通过以下的命令行进行打包</p><pre><code class="cmd">mvn clean install -Pprod</code></pre><p><code>-Pprod</code>将会找到id为<code>prod</code>所在profile标签中的profiles.active标签，并用标签值替换掉<code>application.yml</code>的<code>@profiles.active@</code>占位符。</p><p>虽然所有的application.yml文件都会被打进包内，但是<code>application.yml</code>只会指定<code>prod</code>作为profile。</p><p>这里的<code>-Pprod</code>可以不指定，那样做的话将会缺省为<code>activeByDefault</code>为<code>true</code>的<code>profile</code></p><h3 id="调试方式A"><a href="#调试方式A" class="headerlink" title="调试方式A"></a>调试方式A</h3><p>可以通过以下的命令行进行打包</p><pre><code class="cmd">mvn spring-boot:run -Pprod</code></pre><p>与<code>clean install</code>同理。</p><p>这个方式需要项目有Maven插件<code>spring-boot-maven-plugin</code></p><h3 id="调试方式B"><a href="#调试方式B" class="headerlink" title="调试方式B"></a>调试方式B</h3><p>对于那种项目中有多个启动方法的微服务项目，<code>spring-boot:run</code>命令可能会有问题。</p><p>这类项目一般用main方法调试更方便，那么也可以通过在main方法后面追加一下的Java参数来指定profiles</p><pre><code>-Dspring.profiles.active=dev</code></pre><p>这种方式<strong>无法缺省</strong>，一旦不指定<code>-Dspring.profiles.active</code>，就会报错，因为它不是Maven命令行，无法使用定义在Maven的pom.xml中缺省值。</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Spring Boot</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>Mybatis的相关组件的路径配置会去扫描子目录</title>
+    <link href="/posts/mybatis-scan-packages-recursively/"/>
+    <url>/posts/mybatis-scan-packages-recursively/</url>
+    
+    <content type="html"><![CDATA[<p>开门见山，例如</p><pre><code class="xml">&lt;bean id=&quot;sqlSessionFactory&quot; class=&quot;org.mybatis.spring.SqlSessionFactoryBean&quot;&gt;    &lt;property name=&quot;dataSource&quot; ref=&quot;dataSource&quot; /&gt;        &lt;!--Mybatis配置文件--&gt;        &lt;property name=&quot;configLocation&quot; value=&quot;classpath:mybatis-config.xml&quot; /&gt;        &lt;!--mapper.xml所在位置--&gt;        &lt;property name=&quot;mapperLocations&quot; value=&quot;classpath:mapper/*Mapper.xml&quot; /&gt;        &lt;!--model所在位置--&gt;        &lt;property name=&quot;typeAliasesPackage&quot; value=&quot;com.spldeolin.demo.model&quot; /&gt;    &lt;/bean&gt;</code></pre><p>在这里，<br>如果将某个mapper.xml移动到类似<code>mapper/aaa</code>的目录下，<br>或是将某个model移动到类似<code>com.spldeolin.demo.model.aaa</code>的包下，<br>或是将某个mapper接口移动到类似<code>com.spldeolin.demo.dao.aaa</code>的包下，<br>（当然，移动行为需要IDE的重构功能来确保Reference一致）<br>是<strong>不会报错</strong>的，因为框架会去扫描<code>mapperLocations</code>和<code>typeAliasesPackage</code>指定的目录的子目录。</p><hr><p>同样的，即便是在Mybatis上配置了通用mapper增强，情况也是如此。</p><pre><code class="xml">    &lt;bean class=&quot;tk.mybatis.spring.mapper.MapperScannerConfigurer&quot;&gt;        &lt;!--mapper接口所在位置--&gt;        &lt;property name=&quot;basePackage&quot; value=&quot;com.spldeolin.demo.dao&quot; /&gt;        &lt;property name=&quot;properties&quot; value=&quot;mappers=com.spldeolin.demo.util.bean.Mapper&quot; /&gt;    &lt;/bean&gt;</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Mybatis</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>基于Jackson的JSON工具类</title>
+    <link href="/posts/json-util/"/>
+    <url>/posts/json-util/</url>
+    
+    <content type="html"><![CDATA[<p>一共有3个java文件，1个Exception，2个Util，抽取出ObjectMapperUtils是为了基于Jackson的CSV工具类也能用上</p><pre><code class="java">/** * JSON工具类 * * &lt;pre&gt; * 序列化与反序列化策略参考{@link ObjectMapperUtils#initDefault} * &lt;/pre&gt; * * @author Deolin 2018-04-02 */@Slf4jpublic class JsonUtils {    private static final ObjectMapper om = ObjectMapperUtils.initDefault(new ObjectMapper());    private JsonUtils() {        throw new UnsupportedOperationException(&quot;Never instantiate me.&quot;);    }    /**     * 将对象转化为JSON     */    public static String toJson(Object object) {        return toJson(object, om);    }    /**     * 将对象转化为JSON     */    public static String toJson(Object object, ObjectMapper om) {        try {            return om.writeValueAsString(object);        } catch (JsonProcessingException e) {            log.error(&quot;object={}&quot;, object, e);            throw new JsonException(e);        }    }    /**     * 将对象转化为JSON，结果是美化的     */    public static String toJsonPrettily(Object object) {        return toJsonPrettily(object, om);    }    /**     * 将对象转化为JSON，结果是美化的     */    public static String toJsonPrettily(Object object, ObjectMapper om) {        try {            return om.writerWithDefaultPrettyPrinter().writeValueAsString(object);        } catch (JsonProcessingException e) {            log.error(&quot;object={}&quot;, object, e);            throw new JsonException(&quot;转化JSON失败&quot;);        }    }    /**     * 将JSON转化为对象     */    public static &lt;T&gt; T toObject(String json, Class&lt;T&gt; clazz) throws JsonException {        return toObject(json, clazz, om);    }    /**     * 将JSON转化为对象     */    public static &lt;T&gt; T toObject(String json, Class&lt;T&gt; clazz, ObjectMapper om) throws JsonException {        try {            return om.readValue(json, clazz);        } catch (IOException e) {            log.error(&quot;json={}, clazz={}&quot;, json, clazz, e);            throw new JsonException(e);        }    }    /**     * 将JSON转化为对象列表     */    public static &lt;T&gt; List&lt;T&gt; toListOfObject(String json, Class&lt;T&gt; clazz) throws JsonException {        return toListOfObject(json, clazz, om);    }    /**     * 将JSON转化为对象列表     */    public static &lt;T&gt; List&lt;T&gt; toListOfObject(String json, Class&lt;T&gt; clazz, ObjectMapper om) throws JsonException {        try {            @SuppressWarnings(&quot;unchecked&quot;) Class&lt;T[]&gt; arrayClass = (Class&lt;T[]&gt;) Class                    .forName(&quot;[L&quot; + clazz.getName() + &quot;;&quot;);            return Lists.newArrayList(om.readValue(json, arrayClass));        } catch (IOException | ClassNotFoundException e) {            log.error(&quot;json={}, clazz={}&quot;, json, clazz, e);            throw new JsonException(e);        }    }    /**     * JSON -&gt; 参数化的对象     */    public static &lt;T&gt; T toParameterizedObject(String json, TypeReference&lt;T&gt; typeReference) throws JsonException {        return toParameterizedObject(json, typeReference, om);    }    /**     * JSON -&gt; 参数化的对象     */    public static &lt;T&gt; T toParameterizedObject(String json, TypeReference&lt;T&gt; typeReference, ObjectMapper om)            throws JsonException {        try {            return om.readValue(json, typeReference);        } catch (JsonProcessingException e) {            log.error(&quot;json={}, typeReference={}&quot;, json, typeReference, e);            throw new JsonException(e);        }    }    /**     * JSON -&gt; JsonNode对象     *     * &lt;strong&gt;除非JSON对应数据结构在运行时是变化的，否则不建议使这个方法&lt;/strong&gt;     */    public static JsonNode toTree(String json) throws JsonException {        return toTree(json, om);    }    /**     * JSON -&gt; JsonNode对象     *     * &lt;strong&gt;除非JSON对应数据结构在运行时是变化的，否则不建议使这个方法&lt;/strong&gt;     */    public static JsonNode toTree(String json, ObjectMapper om) throws JsonException {        try {            return om.readTree(json);        } catch (JsonProcessingException e) {            log.error(&quot;json={}&quot;, json, e);            throw new JsonException(e);        }    }}</code></pre><pre><code class="java">/** * 工具类Jsons内部抛出的异常，调用方可自行决定如何处理 * * @author Deolin 2020-03-05 * @see JsonUtils */public class JsonException extends RuntimeException {    private static final long serialVersionUID = 2506389302288058433L;    public JsonException() {        super();    }    public JsonException(String message) {        super(message);    }    public JsonException(String message, Throwable cause) {        super(message, cause);    }    public JsonException(Throwable cause) {        super(cause);    }    protected JsonException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {        super(message, cause, enableSuppression, writableStackTrace);    }}</code></pre><pre><code class="java">/** * 对Jackson的核心 ObjectMapper 进行配置的工具类 * * @author Deolin 2020-09-19 */public class ObjectMapperUtils {    /**     * 对 ObjectMapper 进行缺省化配置     *     * &lt;pre&gt;     * 1. 时间相关的pattern缺省为yyyy-MM-dd HH:mm:ss、yyyy-MM-dd、HH:mm:ss，时区缺省为系统时区     * 2. 发现并注册所有 jackson-datatype-* 依赖     * 3. 反序列化时，忽略Javabean中不存在的属性，而不是抛出异常     * 4. 反序列化时，忽略Javabean中Collection属性对应JSON Array中的为null的元素     * &lt;/pre&gt;     *     * @see ObjectMapperUtils#findAndRegister     * @see ObjectMapperUtils#ignoreCollectionNullElement     * @see ObjectMapperUtils#ignoreUnknownProperties     * @see ObjectMapperUtils#setJavaUtilDateZone     * @see ObjectMapperUtils#setJavaTimePattern     * @see ObjectMapperUtils#setJavaUtilDatePattern     */    public static &lt;T extends ObjectMapper&gt; T initDefault(T om) {        ObjectMapperUtils.findAndRegister(om);        ObjectMapperUtils.ignoreCollectionNullElement(om);        ObjectMapperUtils.ignoreUnknownProperties(om);        ObjectMapperUtils.setJavaUtilDateZone(om, null);        ObjectMapperUtils.setJavaTimePattern(om, &quot;yyyy-MM-dd HH:mm:ss&quot;, &quot;yyyy-MM-dd&quot;, &quot;HH:mm:ss&quot;);        ObjectMapperUtils.setJavaUtilDatePattern(om, &quot;yyyy-MM-dd HH:mm:ss&quot;);        return om;    }    /**     * 使 ObjectMapper 自动发现和注册 jackson-datatype-* 所提供的Module     */    public static void findAndRegister(ObjectMapper om) {        om.findAndRegisterModules();    }    /**     * 使 ObjectMapper 在反序列化时，忽略Javabean中不存在的属性，而不是抛出异常     */    public static void ignoreUnknownProperties(ObjectMapper om) {        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);    }    /**     * 使 ObjectMapper 在反序列化时，忽略Javabean中Collection属性对应JSON Array中的为null的元素     */    public static void ignoreCollectionNullElement(ObjectMapper om) {        om.registerModule(new IgnoreCollectionNullElementDeserializeModule());    }    /**     * 为 ObjectMapper 配置时区     *     * @param timeZone 为null时缺省为TimeZone.getDefault()     */    public static void setJavaUtilDateZone(ObjectMapper om, TimeZone timeZone) {        if (timeZone == null) {            timeZone = TimeZone.getDefault();        }        om.setTimeZone(timeZone);    }    /**     * 为 ObjectMapper 配置java.util.Date的全局pattern     */    public static void setJavaUtilDatePattern(ObjectMapper om, String pattern) {        om.setDateFormat(new SimpleDateFormat(pattern));    }    /**     * 为 ObjectMapper 分别配置（java.time.）LocalDateTime、LocalDate、LocalTime的全局pattern     */    public static void setJavaTimePattern(ObjectMapper om, String localDateTimePattern, String localDatePattern,            String localTimePattern) {        SimpleModule module = new JavaTimeModule();        DateTimeFormatter ldtFormatter = DateTimeFormatter.ofPattern(localDateTimePattern);        DateTimeFormatter ldFormatter = DateTimeFormatter.ofPattern(localDatePattern);        DateTimeFormatter ltFormattter = DateTimeFormatter.ofPattern(localTimePattern);        module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(ldtFormatter))                .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(ldtFormatter))                .addSerializer(LocalDate.class, new LocalDateSerializer(ldFormatter))                .addDeserializer(LocalDate.class, new LocalDateDeserializer(ldFormatter))                .addSerializer(LocalTime.class, new LocalTimeSerializer(ltFormattter))                .addDeserializer(LocalTime.class, new LocalTimeDeserializer(ltFormattter));        om.registerModule(module);    }}</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>工具类</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>==运算结果的总结</title>
+    <link href="/posts/double-equal-sign/"/>
+    <url>/posts/double-equal-sign/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST将会总结一下Java中两个包装对象<code>==</code>运算的问题。</p><p>以<code>int</code>和<code>Integer</code>为例。</p><p><img src="/images/double-equal-sign-01.png" srcset="/img/loading.gif" alt=""></p><h2 id="new出来的对象，除非被拆箱，否则肯定不相等。"><a href="#new出来的对象，除非被拆箱，否则肯定不相等。" class="headerlink" title="new出来的对象，除非被拆箱，否则肯定不相等。"></a>new出来的对象，除非被拆箱，否则肯定不相等。</h2><p><img src="/images/double-equal-sign-02.png" srcset="/img/loading.gif" alt=""></p><p><code>new</code>关键字会先在JVM堆中申请空间，然后构造对象。</p><p>示例中<code>a</code>和<code>b</code>都是new出来的，所以内存空间必然不一样，所以不相等。</p><h2 id="基本数据类型之间只比较值"><a href="#基本数据类型之间只比较值" class="headerlink" title="基本数据类型之间只比较值"></a>基本数据类型之间只比较值</h2><p><img src="/images/double-equal-sign-03.png" srcset="/img/loading.gif" alt=""></p><p>基本数据类型的值，是常量，位于JVM规范的方法区内，</p><p>示例中<code>c</code>和<code>d</code>指向的是同一个对象。</p><h2 id="包装对象只要“遇到”基本数据类型，它就会被拆箱"><a href="#包装对象只要“遇到”基本数据类型，它就会被拆箱" class="headerlink" title="包装对象只要“遇到”基本数据类型，它就会被拆箱"></a>包装对象只要“遇到”基本数据类型，它就会被拆箱</h2><p><img src="/images/double-equal-sign-04.png" srcset="/img/loading.gif" alt=""></p><p><img src="/images/double-equal-sign-05.png" srcset="/img/loading.gif" alt=""></p><p>示例中<code>e</code>和<code>f</code>把后面new出来的Integer对象给手动拆箱了，所以<code>e</code>和<code>f</code>其实已经指向基本数据类型了。</p><p><code>g</code>虽然没被手动拆箱，但它遇到了<code>int h</code>，所以被自动拆箱了，也就是说<code>g</code>和<code>h</code>在比较的时候也都指向基本数据类型了。</p><h2 id="装箱的本质是valueOf"><a href="#装箱的本质是valueOf" class="headerlink" title="装箱的本质是valueOf"></a>装箱的本质是valueOf</h2><p>在Java中，Integer i = 100的本质是<code>Integer i = Integer.valueOf(100)</code>而不是<code>Integer i = new Integer(100)</code>。</p><p>首先说一下两者的区别</p><ul><li>new Integer() 每次都会事先向内存申请空间，每new一次，就会申请一片空间</li><li>Integer.valueOf()内部有缓存处理，当参数-128~127时，无论调用多少次这个返回，返回的都是同一个Integer对象。</li></ul><p>这种设计方法的目的是，Java推荐使用valueOf生成Integer对象，而-128~127的数字也比较常用，使用缓存比较节省内存。</p><p>理解了这种设计方式，下面的两种现象也可以解释了</p><p><img src="/images/double-equal-sign-06.png" srcset="/img/loading.gif" alt=""></p><p><img src="/images/double-equal-sign-07.png" srcset="/img/loading.gif" alt=""></p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>总结</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>try-catch-finally都有return时的返回顺序</title>
+    <link href="/posts/return-from-try-catch-finally/"/>
+    <url>/posts/return-from-try-catch-finally/</url>
+    
+    <content type="html"><![CDATA[<p>过时原因：太简单了</p><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这是一道面试题，记录一下</p><h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>写一个简单的示例就很能说明问题了</p><pre><code class="java">public class Demo {    public static void main(String[] args) {        System.out.println(mustThrow());        System.out.println(neverThrow());    }    public static int mustThrow() {        try {            System.out.println(&quot;[mustThrow] try block&quot;);            Integer.valueOf(&quot;a&quot;);            return 1;        } catch (Exception e) {            System.out.println(&quot;[mustThrow] catch block&quot;);            return 2;        } finally {            System.out.println(&quot;[mustThrow] finally block&quot;);            return 3;        }    }    public static int neverThrow() {        try {            System.out.println(&quot;[neverThrow] try block&quot;);            Integer.valueOf(&quot;1&quot;);            return 1;        } catch (Exception e) {            System.out.println(&quot;[neverThrow] catch block&quot;);            return 2;        } finally {            System.out.println(&quot;[neverThrow] finally block&quot;);            return 3;        }    }}</code></pre><h2 id="演示结果"><a href="#演示结果" class="headerlink" title="演示结果"></a>演示结果</h2><pre><code>[mustThrow] try block[mustThrow] catch block[mustThrow] finally block3[neverThrow] try block[neverThrow] finally block3</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol><li><code>finally</code>代码块中的内容无论如何都会被执行</li><li><code>finally</code>中的<code>return</code>有点过河拆桥的意思，直接不给<code>try</code>或是<code>catch</code>中<code>return</code>语句的执行机会了</li><li>日常开发的时候，<code>finally</code>最好不写<code>return</code>语句，很有可能把预想的返回结果覆盖掉。</li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>快速排序</title>
+    <link href="/posts/quick-sort/"/>
+    <url>/posts/quick-sort/</url>
+    
+    <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST是<strong>快速排序</strong>的DEMO。</p><p>在原始的快速排序追加了一些增强：</p><ul><li>当递归进行到后期，待排序数组足够小时，剩余元素使用插入排序（InsertionSort）效率更好</li><li>使用<strong>三数取中法</strong>作为算法的第一步，用于获取基准元素。</li></ul><h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><pre><code class="java">public class QuickSort&lt;T extends Comparable&lt;? super T&gt;&gt; {    /**     * 这是个经验值。当待排序数组小于等于这个值时，对剩余元素进行插入排序     */    private static final int CUTOFF = 10;     public void sort(T[] arr) {        quickSort(arr, 0, arr.length - 1);    }    /**     * 算法主体 快速排序     * 这个方法会不断地递归自身，一次递归代表“一趟排序”     */    private void quickSort(T[] arr, int left, int right) {        int size = right - left;        if (size &gt; CUTOFF) {            T pivot = median3(arr, left, right);            // 定义游标i, j，由于最左和最右的元素经过三数取中法之后            // 已经确保了前者小于基准元素，后者大于基准元素            // 所以游标应该越过他们            int i = left;            int j = right - 1;            // 游标开始移动，直到i不在j的左侧            for(;;) {                // 游标i不断向右侧移动，直到所指向的元素不再小于基准元素，才停止                while (arr[++i].compareTo(pivot) &lt; 0) {}                // 游标j不断向左侧移动，直到所指向的元素不再大于基准元素，才停止                while (arr[--j].compareTo(pivot) &gt; 0) {}                // i还在j的左侧，而且游标各自指向一个小于基准和大于基准的元素                if (i &lt; j) {                    // 大于基准的元素换到右侧，小于基准的元素换到左侧                    swapRef(arr, i, j);                // 这种情况指的是i, j擦身而过才停止，那么i已经进入了j曾走过的路径，j也如此，说明小于基准元素的元素和大于基准元素的元素已经分离，分离点正是i                } else {                    // 既然已经分离了，那么游标的工作就结束了                    break;                }            }            // 将i指向的元素，和基准元素互换，达到以下示意的效果            // [  *小于基准的元素们*  ]， [基准元素]， [  *大于基准的元素们*  ]            swapRef(arr, i, right - 1);            // 以基准元素为分割，前后递归分治            quickSort(arr, left, i - 1);            quickSort(arr, i + 1, right);        } else {            insertionSort(arr, left, right);        }    }    /** 三分法取基准元素 */    private T median3(T[] arr, int left, int right) {        int center = (left + right) / 2;        // 1、确保最左元素小于中间的元素        if (arr[left].compareTo(arr[center]) &gt; 0) {            swapRef(arr, left, center);        }        // 2、确保最左元素小于最右元素（结合1、2，最左元素是最小的了）        if (arr[left].compareTo(arr[right]) &gt; 0) {            swapRef(arr, left, right);           }        // 3、确保中间元素大于最右元素（结合2、3，最右元素是最大的了）（结合2、3括号里的内容，中间元素是中间值）        if (arr[center].compareTo(arr[right]) &gt; 0) {            swapRef(arr, center, right);           }        // 基准元素移动到倒数第二位，为了不阻挡后续游标i, j的移动        swapRef(arr, center, right - 1);        return arr[right - 1];    }    /**     * 插入排序     * 对数组从left到right的元素进行排序     */    private void insertionSort(T[] arr, int left, int right) {        int j;        // 这里一次循环代表&quot;一趟排序&quot;        // “第i趟排序”结束时，从left至第i号的元素是有序的，所以i从left+1开始，到right为止        for (int i = left + 1; i &lt;= right; i++) {            // 每趟都是为i号元素进行插队            T selected = arr[i];              for (j = i; j &gt; 0 &amp;&amp; arr[j - 1].compareTo(selected) &gt; 0; j--) {                  // 准备插队的过程中，比插队元素大的元素应该往后走一位，效果就是一个“空位”不断向左移                arr[j] = arr[j - 1];            }            // “空位”停止了移动，因为“空位”前方的元素比插队元素小，            // 而“空位”后方也是比插队元素大的最后一个元素，            // 插队元素完成了插队，该趟插入排序结束            arr[j] = selected;        }    }    /** 位置交换 */    private void swapRef(T[] arr, int oneIndex, int anotherIndex) {        T temp = arr[oneIndex];        arr[oneIndex] = arr[anotherIndex];        arr[anotherIndex] = temp;    }}</code></pre><h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><pre><code class="java">    public static void main(String[] args) {        // 生成一个长度为100，元素在0～50随机分布的列表        Random random = new Random();        List&lt;Integer&gt; list = new ArrayList&lt;&gt;();        for (int i = 0; i &lt; 100; i++) {            list.add(random.nextInt(50));        }        System.out.println(list);        System.out.println(&quot;&quot;);        Integer[] arr = list.toArray(new Integer[0]);        QuickSort&lt;Integer&gt; sorter = new QuickSort&lt;&gt;();        sorter.sort(arr);        for (Integer ele : arr) {            System.out.print(ele + &quot;　&quot;);        }    }</code></pre><pre><code>[29, 28, 28, 14, 17, 35, 27, 18, 28, 17, 44, 3, 7, 33, 39, 19, 36, 2, 8, 42, 48, 47, 31, 44, 46, 40, 24, 26, 31, 34, 2, 8, 19, 29, 25, 26, 28, 20, 6, 20, 28, 5, 23, 37, 16, 17, 25, 30, 34, 44, 9, 20, 27, 23, 4, 10, 17, 26, 5, 8, 0, 3, 32, 20, 2, 30, 47, 44, 10, 20, 17, 23, 42, 14, 13, 1, 35, 29, 39, 42, 17, 1, 16, 19, 14, 36, 9, 15, 7, 9, 1, 1, 47, 14, 48, 10, 36, 35, 17, 34]0　1　1　1　1　2　2　2　3　3　4　5　5　6　7　7　8　8　8　9　9　9　10　10　10　13　14　14　14　14　15　16　16　17　17　17　17　17　17　17　18　19　19　19　20　20　20　20　20　23　23　23　24　25　25　26　26　26　27　27　28　28　28　28　28　29　29　29　30　30　31　31　32　33　34　34　34　35　35　35　36　36　36　37　39　39　40　42　42　42　44　44　44　44　46　47　47　47　48　48　</code></pre>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>算法</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  
+</search>

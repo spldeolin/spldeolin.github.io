@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>Spring事务的7种传播级别 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2020-03-18 11:06
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2020-03-18 11:25</p>
+            
+            <div class="markdown-body">
+              <h2 id="1-REQUIRED级别"><a href="#1-REQUIRED级别" class="headerlink" title="1. REQUIRED级别"></a>1. REQUIRED级别</h2><ul>
+<li>如果没有专门指定，<code>REQUIRED</code>会是默认的传播级别</li>
+<li>如果外层存在一个事务，则加入到外层事务中；否则自己新建一个事务</li>
+</ul>
+<pre><code class="java">OuterService {
+
+  @Tx
+  method() {
+      saveIntoDB(); // rollback
+      innerService.method(); 
+      int b = 1 / 0;
+  }
+}
+
+InnerService {
+
+    @Tx(REQUIRED)
+    method() {
+        saveIntoDB(); // rollback
+    }
+}</code></pre>
+<h2 id="2-SUPPORTS级别"><a href="#2-SUPPORTS级别" class="headerlink" title="2. SUPPORTS级别"></a>2. SUPPORTS级别</h2><ul>
+<li>如果外层存在一个事务，则加入到外层事务中；否则非事务执行，就当没这个注解</li>
+</ul>
+<pre><code class="java">OuterService {
+
+    method() {
+        innerService.method();
+    }
+
+}
+
+InnerService {
+
+    @Tx(SUPPORTS)
+    method() {
+        saveIntoDB(); // not rollback
+        int b = 1 / 0;
+    }
+}</code></pre>
+<h2 id="3-MANDATORY级别"><a href="#3-MANDATORY级别" class="headerlink" title="3. MANDATORY级别"></a>3. MANDATORY级别</h2><ul>
+<li><p>如果外层存在一个事务，则加入到外层事务中；否则一调用就抛出异常，执行不到内层方法</p>
+<p><code>org.springframework.transaction.IllegalTransactionStateException: No existing transaction found for transaction marked with propagation &#39;mandatory&#39;</code></p>
+</li>
+</ul>
+<h2 id="阶段性总结"><a href="#阶段性总结" class="headerlink" title="阶段性总结"></a>阶段性总结</h2><p><code>PROPAGATION_REQUIRED</code>、<code>PROPAGATION_SUPPORTS</code>、<code>PROPAGATION_MANDATORY</code>这三个传播级别碰到外层存在事务时处理方式是一致的，都是加入到外层事务；区别在于外层没事务时的处理方式。</p>
+<h2 id="4-REQUIRES-NEW级别"><a href="#4-REQUIRES-NEW级别" class="headerlink" title="4. REQUIRES_NEW级别"></a>4. REQUIRES_NEW级别</h2><ul>
+<li>如果外层不存在事务，新建事务</li>
+<li>如果外层存在事务，挂起外层事务，本层新建一个事务，执行完返回后直接提交，外层如果后续再抛异常，不回滚内层。</li>
+<li>适用场景：使用一个方法记录操作日志，无论外层后续是否失败，操作日志都不应该回滚，因为这次操作客观发生过，只不过失败了。</li>
+</ul>
+<pre><code class="java">OuterService {
+
+  @Tx
+  method() {
+      saveIntoDB(); // rollback
+      innerService.method(); 
+      int b = 1 / 0;
+  }
+}
+
+InnerService {
+
+    @Tx(REQUIRED_NEW)
+    method() {
+        saveIntoDB(); // not rollback
+    }
+}</code></pre>
+<h2 id="5-NOT-SUPPORTED级别"><a href="#5-NOT-SUPPORTED级别" class="headerlink" title="5. NOT_SUPPORTED级别"></a>5. NOT_SUPPORTED级别</h2><ul>
+<li>“如果外层不存在事务，不新建事务”版的<code>PROPAGATION_REQUIRES_NEW</code></li>
+</ul>
+<h2 id="6-NEVER级别"><a href="#6-NEVER级别" class="headerlink" title="6. NEVER级别"></a>6. NEVER级别</h2><ul>
+<li>“如果外层不存在事务，不新建事务”版的<code>PROPAGATION_MANDATORY</code></li>
+</ul>
+<h2 id="7-NESTED级别"><a href="#7-NESTED级别" class="headerlink" title="7. NESTED级别"></a>7. NESTED级别</h2><ul>
+<li>如果外层不存在事务，新建事务</li>
+<li>如果外层存在事务，也是单独提交单独回滚，不过内层会利用外层的<code>savepoint</code>来进行回滚，内层需要回滚时，只需回滚到指定<code>log</code>的位置，不需要新建连接，开销很低</li>
+<li>适用场景：批量处理数据时，有一趟失败了，只回滚这一趟，不影响其他。这个场景不使用<code>PROPAGATION_REQUIRES_NEW</code>的原因是后者开销比较大</li>
+</ul>
+<pre><code class="java">OuterService {
+
+  @Tx
+  method() {
+        for (
+            try {
+                innerService.method(); 
+            } catch (e) {
+                log.error(e);
+            }
+        )
+    }
+}
+
+InnerService {
+
+    @Tx(NESTED)
+    method() {
+        saveIntoDB();
+        if (new Random().nextBoolean()) {
+            int b = 1 / 0;
+        }
+    }
+}</code></pre>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>NEW</code>和<code>NESTED</code>比较特殊，都是外层异常不回滚内层的传播级别，区别在于开销的高低</p>
+<h2 id="写这篇POST时遇到的一个问题"><a href="#写这篇POST时遇到的一个问题" class="headerlink" title="写这篇POST时遇到的一个问题"></a>写这篇POST时遇到的一个问题</h2><p>事务方法必须是<code>public</code>的，否则事务将会失效</p>
+<pre><code class="java">//~ com.spldeolin.tx.TxController.java
+    @GetMapping(&quot;/tx&quot;)
+    Object tx() {
+        txService.working(&quot;演示1&quot;);
+        txService.notWorking(&quot;演示2&quot;);
+        return null;
+    }
+
+//~ com.spldeolin.tx.TxService.java  
+// 这个类没有实现接口，与TxController在同一包下，所以notWorking方法能被调用
+    @Transactional
+    public void working(String a) {
+        BizDemoEntity bizDemo = new BizDemoEntity();
+        bizDemo.setName(a);
+        bizDemoMapper.insert(bizDemo);
+        if (true) {
+            throw new RuntimeException(&quot;something happened.&quot;);
+        }
+    }
+
+    @Transactional
+    void notWorking(String a) {
+        BizDemoEntity bizDemo = new BizDemoEntity();
+        bizDemo.setName(a);
+        bizDemoMapper.insert(bizDemo);
+        if (true) {
+            throw new RuntimeException(&quot;something happened.&quot;);
+        }
+    }
+</code></pre>
+<p>在这个示例中，数据<code>演示1</code>被回滚了，而<code>演示2</code>没有被回滚，因为notWorking方法的事务注解没有生效。</p>
+<h3 id="为什么会出现这个问题？"><a href="#为什么会出现这个问题？" class="headerlink" title="为什么会出现这个问题？"></a>为什么会出现这个问题？</h3><p>Spring的声明式事务是通过AOP实现，有一个名为<code>AbstractAutoProxyCreator</code>的<code>BeanPostProcessor</code>，是用来专门生成代理对象的组件，他会对所有声明了@Transactional的类进行动态代理。</p>
+<p>Spring AOP有一个原则，如果被代理类实现接口，那么使用JDK Proxy的方式进行动态代理；否则使用CGlib的方式进行动态代理。</p>
+<p>这个示例中的<code>TxService</code>没有实现接口，那么Spring AOP会使用CGlib，CGlib的原理是通过生成一个 Override了被代理类所有方法 的派生类，来实现对方法的拦截的。</p>
+<p>CGlib想要能够Override一个package-private的方法，必须要将派生类生成在被代理类所在的包，这对CGlib而言是可以做到的，但它没有那么设计，因为代理模式的理念是“外部”调用内部才会被“拦截”，package-private算是一个内部的方法，所以protected方法不会被拦截，这样的设计与JDK Proxy代理时的结果也是一致的。</p>
+<h3 id="怎么解决和避免这个问题？"><a href="#怎么解决和避免这个问题？" class="headerlink" title="怎么解决和避免这个问题？"></a>怎么解决和避免这个问题？</h3><p>永远把<code>@Transactional</code>声明在一个<code>public</code>方法上而不是其他访问权限的方法上。</p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Spring/">Spring</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Spring事务的7种传播级别&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

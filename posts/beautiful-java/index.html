@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>Java编码方式 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2019-05-27 09:20
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2020-12-02 10:12</p>
+            
+            <div class="markdown-body">
+              <h2 id="防止下标越界"><a href="#防止下标越界" class="headerlink" title="防止下标越界"></a>防止下标越界</h2><pre><code class="java">import com.google.common.collect.Iterables;
+
+User firstOne = Iterables.getFirst(users, null);
+User lastOne = Iterables.getLast(users, null);</code></pre>
+<h2 id="null缺省"><a href="#null缺省" class="headerlink" title="null缺省"></a>null缺省</h2><pre><code class="java">import com.google.common.base.MoreObjects;
+
+Integer age = MoreObjects.firstNonNull(user, DEFAULT_USER).getAge();</code></pre>
+<p>在Guava的早期版本中，<code>firstNonNull</code>是声明在<code>com.google.common.base.Objects</code>中的，这容易与<code>java.util.Objects</code>产生冲突，所以不推荐使用过于早版本的Guava</p>
+<h2 id="简化if-null-then-null"><a href="#简化if-null-then-null" class="headerlink" title="简化if-null-then-null"></a>简化if-null-then-null</h2><pre><code class="java">import org.apache.commons.lang3.math.NumberUtils;
+
+Long a = NumberUtils.createLong(user.getValue());</code></pre>
+<h2 id="字符串拼接"><a href="#字符串拼接" class="headerlink" title="字符串拼接"></a>字符串拼接</h2><pre><code class="java">import com.google.common.base.Joiner;
+
+StringBuilder msg = Joiner.on(&quot;、&quot;).appendTo(new StringBuilder(&quot;这些用户已被禁用：&quot;), userIds).append(&quot;。&quot;);</code></pre>
+<h2 id="获取唯一元素"><a href="#获取唯一元素" class="headerlink" title="获取唯一元素"></a>获取唯一元素</h2><pre><code class="java">import com.google.common.collect.Iterables;
+
+Foo foo = Iterables.getOnlyElement(foos);</code></pre>
+<p>foos元素个数不足或是个数过多会抛出<code>NoSuchElementException</code>或是<code>IllegalArgumentException</code></p>
+<h2 id="java-time"><a href="#java-time" class="headerlink" title="java.time.*"></a>java.time.*</h2><p><a href="https://spldeolin.com/posts/java8-time-guide/">Java8 time包指南</a></p>
+<h2 id="谨慎使用继承（extends）"><a href="#谨慎使用继承（extends）" class="headerlink" title="谨慎使用继承（extends）"></a>谨慎使用继承（extends）</h2><p>继承代表父子耦合，使用继承前想一想，“这里需要用到多态吗？不需要的话用“组合”行不行？”</p>
+<p>继承会引发的BUG可以参考 <code>add</code> 和 <code>addAll</code> 的那个例子</p>
+<h2 id="预提供调用方对返回值的常用操作"><a href="#预提供调用方对返回值的常用操作" class="headerlink" title="预提供调用方对返回值的常用操作"></a>预提供调用方对返回值的常用操作</h2><pre><code class="java">// before
+public UserDto getUser(Long userId) {
+    return userDao.get(userId);
+}</code></pre>
+<pre><code class="java">// after
+public Optional&lt;UserDto&gt; getUser(Long userId) {
+    return Optional.ofNullable(userDao.get(userId));
+}
+
+public UserDto getUserOrElseThrow(Long userId) {
+    return getUser().orElseThrow(() -&gt; new UserAbsentException(userId));
+}
+
+public UserDto getUserOrElseNew(Long userId) {
+    return getUser().orElseThrow(new UserDto());
+}</code></pre>
+<h2 id="打印日志的场景"><a href="#打印日志的场景" class="headerlink" title="打印日志的场景"></a>打印日志的场景</h2><ol>
+<li><p>“值类型”或者元素是“值类型”的容器，构建/初始化完毕后，打印日志是有必要的。</p>
+<p>比起Javabean，“值类型”对象toString的返回值往往很短，打印它们开销很小，同时他们代表的信息对于调试又很关键（例如<code>List&lt;Long&gt;</code>，它们往往代表着一些实体的外键）</p>
+<pre><code class="java">Map&lt;Long, Integer&gt; extractIds = Maps.newHashMap();
+javabeans.forEach(one -&gt; extractIds.add(one.getId()));
+log.info(&quot;extractIds={}&quot;, extractIds.toString())</code></pre>
+</li>
+<li><p>调用其他模块的API之后</p>
+<pre><code class="java">List&lt;String&gt; itemAttrValues = goodsApi.getAttrValues(itemIds, true, 500);
+log.info(&quot;goodsApi.getAttrValues({}, true, 500)={}&quot;, itemIds, itemAttrValues);</code></pre>
+</li>
+<li><p>return null之前</p>
+<pre><code class="java">if (items.size() == 0) {
+    log.warn(&quot;找不到任何商品，itemName={}&quot;, itemName); // warn还是info取决于业务
+    return null;
+}</code></pre>
+</li>
+<li><p>请求无法继续执行时</p>
+<pre><code class="java">try {
+    stockApi.lockStock(id, delta);
+} catch (OutOfStockException e) {
+    log.error(&quot;库存不足，可能是操作期间C端下单所致&quot;);
+    throw new SubmitOrderException();
+}</code></pre>
+</li>
+</ol>
+<h2 id="考虑使用一个ApiImpl来实现多个Api"><a href="#考虑使用一个ApiImpl来实现多个Api" class="headerlink" title="考虑使用一个ApiImpl来实现多个Api"></a>考虑使用一个<code>ApiImpl来</code>实现多个<code>Api</code></h2><p>当你的所有<code>ApiImpl</code>里实现的方法没有任何业务逻辑，只有调用<code>Service</code>和数据组装时，可以考虑使用一个<code>ApiImpl来</code>实现多个<code>Api</code></p>
+<p>这样做有助于减少IDE阅读代码时需要打开的窗口数，提高阅读代码的效率</p>
+<p>由于改动的仅仅是实现，所以“<strong>接口隔离原则</strong>”既然是遵守的。</p>
+<h2 id="本应该查询到1个但是查到多个时，考虑抛出异常"><a href="#本应该查询到1个但是查到多个时，考虑抛出异常" class="headerlink" title="本应该查询到1个但是查到多个时，考虑抛出异常"></a>本应该查询到1个但是查到多个时，考虑抛出异常</h2><pre><code class="java">/**
+ * 根据手机号获取用户，不存在时返回null
+ */
+public User getUserOrElseNull(String telephone) 
+        throws MoreThanOneResultsException {
+    List&lt;User&gt; users = userDao.select(new Wrapper(&quot;telephone&quot;, telephone));
+
+    if (users.size() == 0) {
+        return null;
+    }
+
+    // 预想之外的情况
+    if (users.size() &gt; 1) { 
+        // 抛出异常交给调用者处理，如果业务上不可能发生，算作BUG；如果是正常情况，那么调用方可以捕获
+        throw new MoreThanOneResultsException(users);
+    }
+
+    return users.get(0);
+}</code></pre>
+<pre><code class="java">/**
+ * 当本应返回1个满足条件结果的方法内部获取到不止1个结果时，应该抛出这个异常。
+ */
+public class MoreThanOneResultsException extends RuntimeException {
+
+    private static final long serialVersionUID = 3999892488916264668L;
+
+    private Object firstOne;
+
+    private Collection&lt;?&gt; results;
+
+    public MoreThanOneResultsException(Collection&lt;?&gt; results) {
+        super();
+        if (results == null || results.size() == 0) {
+            throw new IllegalArgumentException(&quot;Results cannot be empty.&quot;);
+        }
+        this.results = results;
+        this.firstOne = Iterables.getFirst(results, null);
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public &lt;T&gt; T orElseFirst() {
+        return (T) firstOne;
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public &lt;T&gt; Collection&lt;T&gt; getResults() {
+        return (Collection&lt;T&gt;) results;
+    }
+
+    @Override
+    public String getMessage() {
+        return &quot;Method obtained more than one result, perhaps caused by data problems. &quot; + results;
+    }
+}</code></pre>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%80%BB%E7%BB%93/">总结</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Java编码方式&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

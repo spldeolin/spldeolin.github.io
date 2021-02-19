@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>Java8 time包指南 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2019-06-06 22:25
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2019-06-07 22:50</p>
+            
+            <div class="markdown-body">
+              <p>除非身边的人都不会、并且都不打算学着使用，否则没什么理由不使用Java8 time。</p>
+<h2 id="新的类型"><a href="#新的类型" class="headerlink" title="新的类型"></a>新的类型</h2><h3 id="LocalDate与LocalTime"><a href="#LocalDate与LocalTime" class="headerlink" title="LocalDate与LocalTime"></a>LocalDate与LocalTime</h3><ul>
+<li><p>类如其名，它们分别代表“年月日”这样的<strong>日期</strong>与“时分秒”这样的<strong>时间</strong></p>
+</li>
+<li><p>这两个类型都实现了<code>Temporal</code>接口</p>
+</li>
+<li><p>构建对象</p>
+<pre><code class="java">// 方式一：通过API
+LocalTime localTime = LocalTime.of(21, 1, 1);
+LocalDate localDate = LocalDate.of(2012, 12, 31);
+LocalTime localTime2 = LocalTime.now();
+LocalDate localDate2 = LocalDate.now();
+
+// 方式二：通过转化字符串
+LocalTime localTime3 = LocalTime.parse(&quot;12:12:12&quot;, dateTimeFormatter);</code></pre>
+</li>
+<li><p>解析时间</p>
+<pre><code class="java">// 方式一：通过API
+int year = localDate.getYear();
+int hour = localTime.getHour();
+// ...
+
+// 方式二：通过TemporalField
+int month = localDate.get(ChronoField.MONTH_OF_YEAR); // ChronoField枚举实现了TemporalField
+int minute = localTime.get(ChronoField.MINUTE_OF_HOUR);
+// ...</code></pre>
+<p>示例中提到的<code>TemporalField</code>接口值得被关注，它有许多实现类，这意味着Java提供了许多种解析时间的方式，例如</p>
+<ul>
+<li>get(IsoFields.DAY_OF_QUARTER) 返回该时间是所在季度的第几天</li>
+<li>get(ChronoField.MINUTE_OF_HOUR) 返回该时间的分钟数</li>
+</ul>
+<p>多查<code>TemporalField</code>的实现类，并善用它们，可以让原本复杂的时间解析变得非常简单。</p>
+</li>
+</ul>
+<h3 id="LocalDateTime"><a href="#LocalDateTime" class="headerlink" title="LocalDateTime"></a>LocalDateTime</h3><ul>
+<li><p>这个类型是<code>LocalDate</code>与<code>LocalTime</code>的合体，它也实现了<code>Temporal</code>接口</p>
+</li>
+<li><p>构建对象</p>
+<pre><code class="java">LocalDateTime ldt1 = LocalDateTime.of(2000, 1, 1, 12, 1, 1);
+LocalDateTime ldt2 = LocalDateTime.of(localDate, localTime);
+LocalDateTime ldt3 = localDate.atTime(12, 1, 1);
+LocalDateTime ldt4 = localDate.atTime(localTime);
+LocalDateTime ldt5 = localTime.atDate(localDate); </code></pre>
+<p>不得不说，真的设计地非常灵活。</p>
+</li>
+<li><p><code>LocalDateTime</code>的API与<code>LocalDate</code>和<code>LocalTime</code>很类似</p>
+</li>
+</ul>
+<h3 id="Instant"><a href="#Instant" class="headerlink" title="Instant"></a>Instant</h3><ul>
+<li><code>Instant</code>是面向计算机的时间类型，它也实现了<code>Temporal</code>接口</li>
+<li>一般通过秒和纳秒来构建<code>Instant</code>对象</li>
+<li><code>Instant</code>不支持读取值，调用get方法会抛出异常</li>
+</ul>
+<h3 id="Duration与Period"><a href="#Duration与Period" class="headerlink" title="Duration与Period"></a>Duration与Period</h3><ul>
+<li><p>它们分别表示两个<code>Temporal</code>之间的时间间隔</p>
+</li>
+<li><p>这两个类都没有实现<code>Temporal</code>接口</p>
+</li>
+<li><p>构建对象</p>
+<pre><code class="java">// Duration表示LocalDate以外的两个Temporal之间的间隔
+Duration d = Duration.between(localTime, localTime2);
+Duration d2 = Duration.between(localDateTime, localDateTime2);
+Duration d3 = Duration.between(instant, instant2);
+
+// Period表示两个LocalDate之间的间隔
+Period period = Period.between(LocalDate.now(), LocalDate.of(2019, 12, 31));</code></pre>
+</li>
+<li><p>解析<strong>时间间隔</strong></p>
+<p><code>Duration</code>与<code>Period</code>对象都支持使用<code>get</code>方法进行解析，这个方法支持所有<code>TemporalUnit</code>的实现类</p>
+</li>
+</ul>
+<h2 id="操作Temporal"><a href="#操作Temporal" class="headerlink" title="操作Temporal"></a>操作Temporal</h2><p>这里以<code>LocalDate</code>为例，介绍一下如何操作<code>Temporal</code>对象</p>
+<ul>
+<li><p>直接修改值</p>
+<pre><code class="java">// 方式一：使用API
+LocalDate date = LocalDate.of(2014, 12, 1); // 2014-12-01
+LocalDate newDate = date.withYear(2018); // 2018-12-01
+
+// 方式二：使用TemporalAdjuster（也可以使用自定义的TemporalAdjuster实现类）
+LocalDate newDate2 = date.with(TemporalAdjuster.lastDayOfMonth()); // 2014-12-31</code></pre>
+<p>注意，<code>LocalDate</code>是不可变对象</p>
+</li>
+<li><p>相对修改值</p>
+<pre><code class="java">LocalDate date = LocalDate.of(2014, 12, 1); // 2014-12-01
+LocalDate newDate = date.plusYears(1).minus(1, ChronoUnit.MONTHS); // 2015-11-01</code></pre>
+</li>
+</ul>
+<h2 id="转换为String"><a href="#转换为String" class="headerlink" title="转换为String"></a>转换为String</h2><ul>
+<li>会用到一个类——<code>DateTimeFormatter</code></li>
+</ul>
+<h2 id="时区问题"><a href="#时区问题" class="headerlink" title="时区问题"></a>时区问题</h2><ul>
+<li><p>新的时区类型为<code>ZoneId</code>和<code>ZoneOffset</code>，其中<code>ZoneOffset</code>是<code>ZoneId</code>的子类。</p>
+</li>
+<li><p><code>LocalDate</code>、<code>LocalTime</code>、<code>LocalDateTime</code>这三个类型都是不带时区信息的，当他们与<code>ZoneId</code>结合后，会生成<code>ZonedDateTime</code></p>
+<pre><code class="java">LocalDate localDateTime = LocalDateTime.of(2019, 1, 2, 12, 12, 12);
+// 通过ZoneId对象
+ZonedDateTime zonedDateTime1 = localDateTime.atZone(ZoneId.of(&quot;Europe/Rome&quot;));
+
+// 通过ZoneOffset对象
+ZonedDateTime zonedDateTime2 = localDateTime.atZone(ZoneOffset.of(&quot;-05:00&quot;));
+</code></pre>
+</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Java/">Java</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Java/">Java</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Java8 time包指南&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

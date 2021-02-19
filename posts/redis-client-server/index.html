@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/images/favicon.png">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="black">
+  <meta name="description" content="Java / ACG / 健身 / 日本語 / 写作&lt;br&gt;「面白いたましいになりたい。」">
+  <meta name="author" content="Deolin Yim">
+  <meta name="keywords" content="">
+  <title>Redis 客户端与服务器实现 | Deolin 千奇百怪的漫长旅行</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Deolin 千奇百怪的漫长旅行</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">HOME</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">POST</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/categories/">CATEGORY</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/tags/">TAG</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">Deolin</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  2019-05-28 11:17
+                </p>
+              
+
+              <p class="mt-1">
+                
+
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p
+                class="note note-warning">Updated at 2019-05-28 11:17</p>
+            
+            <div class="markdown-body">
+              <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这篇POST将会梳理Redis客户端与服务器主要功能的具体实现方式。</p>
+<h2 id="Redis客户端"><a href="#Redis客户端" class="headerlink" title="Redis客户端"></a>Redis客户端</h2><ol>
+<li><p>Redis是个1对n的服务器程序，一个服务器可以跟多个客户端建立网络连接，每个客户端可以向服务器发送命令</p>
+</li>
+<li><p>对于每个与自己建立连接的客户端，服务端会以<strong>链表</strong>的形式为保存所有客户端的当前信息，链表里每个元素类型是<code>redisClient</code></p>
+</li>
+<li><p>redisClient的属性</p>
+<ul>
+<li><code>fd</code> -1时代表这是个伪客户端，用于代表AOF或Lua发送命令；大于-1时代表客户端的stocket描述符</li>
+<li><code>name</code> 名称，默认为空白，可以通过<code>CLIENT setname</code>设置一个名字</li>
+<li><code>flags</code> 代表角色<ul>
+<li>主从复制时，主、从互相是对方的客户端，他们的<code>flags</code>分别是<code>REDIS_MASTER</code>和<code>REDIS_SLAVE</code></li>
+<li><code>REDIS_PRE_PSYNC</code>指服务器版本太低，无法PSYNC</li>
+<li><code>REDIS_LUA_CLIENT</code>指这是个处理Lua的伪客户端</li>
+<li>其它…</li>
+</ul>
+</li>
+<li><code>querybuf</code>代表输入缓冲区，客户端每向服务器发一条命令，<code>querybuf</code>都会保存下整条命令的SDS</li>
+<li><code>argv</code> 将输入缓冲区分析后，将命令参数保存到<code>argv</code>数组，其中第0项是命令，后面的项是参数</li>
+<li><code>argc</code>是数据的长度，使获取长度的时间复杂度变为O(1)</li>
+<li><code>authenticated</code>记录客户端是否通过了身份验证，为0时服务器只接收<code>AUTH</code>命令</li>
+<li><code>ctime</code>创建客户端的时间，代表客户端与服务器连接多久了</li>
+<li><code>lastinteraction</code>客户端与服务器最后一次互动的时间</li>
+<li><code>obuf_soft_limit_reached_time</code>输出缓冲区第一次达到软限制的时间</li>
+</ul>
+</li>
+<li><p>服务器是如何解析命令的？</p>
+<ol>
+<li><p>服务端解析得到<code>argv</code>和<code>argc</code>，根据<code>argv[0]</code>从命令表查找对应的函数</p>
+<p>命令表是个字典，字典的值保存了函数标志、参数列表、总执行次数、总耗时等</p>
+</li>
+<li><p>执行命令，命令返回值会保存在输出缓冲区</p>
+<p>每个客户端有2个输出缓冲区，一个固定总长度，用于保存长度小的返回值，是个定长字符数组；另一个可变总长度，用于保存长返回值，是个字符串链表。</p>
+</li>
+</ol>
+</li>
+<li><p>当客户端的输出缓冲区超过了硬性限制，服务器会立即关闭客户端</p>
+</li>
+<li><p>当客户端的输出缓存区超过了软性限制，服务器会根据<code>obuf_soft_limit_reached_time</code>来监视客户端，如果长时间超过软性限制，服务器会关闭客户端，如果没有，<code>obuf_soft_limit_reached_time</code>清零</p>
+</li>
+<li><p>服务器的生命周期内，负责执行Lua脚本的伪客户端 会一直存在。</p>
+</li>
+<li><p>服务器载入AOF文件期间，会创建负责执行AOF文件内命令的伪客户端，载入AOF完毕后这个客户端会被关闭</p>
+</li>
+</ol>
+<h2 id="Redis服务器执行命令"><a href="#Redis服务器执行命令" class="headerlink" title="Redis服务器执行命令"></a>Redis服务器执行命令</h2><ol>
+<li><p>客户端把用户输入的命令转化为协议，发向服务器</p>
+</li>
+<li><p>客户端与服务器的Stock因为客户端写入变得可读，服务器读取协议，保存到输入缓冲区，调用<strong>命令执行器</strong></p>
+</li>
+<li><p>通过命令表找个函数，至此，函数、参数、参数个数集齐</p>
+</li>
+<li><p>检查找到的函数是否为NULL</p>
+<p>检查函数所需参数个数与<code>argc</code>代表的参数个数是否一致</p>
+<p>检查身份验证</p>
+<p>检查内存是否足够</p>
+<p>BGSAVE、订阅、数据载入、Lua时相关限制的检查</p>
+</li>
+<li><p>调用函数，返回值保存到输出缓冲区</p>
+</li>
+<li><p>慢查询日志（如果开启了的话）</p>
+<p>更新客户端的<code>milliseconds</code>属性、<code>calls</code>自增1</p>
+<p>AOF持久化这条命令（如果开启了的话）</p>
+<p>将命令传播到从服务器（如果有从服务器的话）</p>
+</li>
+<li><p>Stocket变为可写状态，<strong>命令回复器</strong>将输入缓冲区的返回值转化为协议，发向客户端。</p>
+</li>
+<li><p>客户端将协议转化为返回值，打印到终端</p>
+</li>
+</ol>
+<h2 id="serverCron函数"><a href="#serverCron函数" class="headerlink" title="serverCron函数"></a>serverCron函数</h2><ol>
+<li><p>默认100ms执行一次</p>
+</li>
+<li><p>服务器状态保存了当前系统时间的缓存，serverCron每次执行会更新时间缓存，所以精确度不高</p>
+</li>
+<li><p>对时间精确度要求不高的任务，会基于系统时间缓存来定时执行，以减少系统调用次数</p>
+</li>
+<li><p><code>trackOperationsPerSecond</code>每100ms执行一次，抽样计算，估出最近1s内处理的命令数量</p>
+<p>估算方式是统计两次函数调用之间执行的命令数，算出每ms的命令数，乘以1000</p>
+</li>
+<li><p>serverCron会查看服务器当前的内存使用量</p>
+</li>
+<li><p>serverCron会检查客户端与服务器是否长时间无互动，释放占用过高的客户端输入缓冲区</p>
+</li>
+<li><p>serverCron会检查并删除过期键，收缩字典等操作</p>
+</li>
+</ol>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                  <span>
+                <i class="iconfont icon-inbox"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Redis/">Redis</a>
+                      &nbsp;
+                    
+                  </span>&nbsp;&nbsp;
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Redis/">Redis</a>
+                    
+                  </span>
+                
+              </p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Redis 客户端与服务器实现&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
