@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>将iPhone中的照片拷贝到Mac中</title>
+    <link href="/posts/iphone-photo-to-mac/"/>
+    <url>/posts/iphone-photo-to-mac/</url>
+    
+    <content type="html"><![CDATA[<ol><li><p>使用数据线把iPhone和MacBook连接起来（iPhone需要解锁）</p></li><li><p>在Mac OS中打开<code>图像捕捉.app</code></p></li><li><p>左侧的<code>设备</code>中会出现连接iPhone，选中后右侧会出现该iPhone中的所有照片</p></li><li><p>点击<code>下载全部</code>即可</p></li></ol>]]></content>
+    
+    
+    <categories>
+      
+      <category>Memorandum</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Mac OS</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>替换Spring容器中存在的Bean</title>
     <link href="/posts/spring-replace-bean/"/>
     <url>/posts/spring-replace-bean/</url>
