@@ -4,6 +4,31 @@
   
   
   <entry>
+    <title>Java 3种方式递归地遍历文件夹</title>
+    <link href="/posts/3-way-traverse-directory/"/>
+    <url>/posts/3-way-traverse-directory/</url>
+    
+    <content type="html"><![CDATA[<h2 id="依赖commons-lang3"><a href="#依赖commons-lang3" class="headerlink" title="依赖commons-lang3"></a>依赖<code>commons-lang3</code></h2><pre><code class="java">    long l = System.currentTimeMillis();    Set&lt;Path&gt; way2 = new HashSet&lt;&gt;();    FileUtils.iterateFiles(dir, new String[]{&quot;java&quot;}, true).forEachRemaining(one -&gt; way2.add(one.toPath()));    System.out.println((System.currentTimeMillis() - l));</code></pre><h2 id="依赖jodd-util"><a href="#依赖jodd-util" class="headerlink" title="依赖jodd-util"></a>依赖<code>jodd-util</code></h2><pre><code class="java">    long l = System.currentTimeMillis();    Set&lt;Path&gt; way1 = new HashSet&lt;&gt;();    for (File file : FindFile.createWildcardFF().searchPath(dir).recursive(true).includeDirs(false).walking(false)            .include(&quot;**/*.java&quot;)) {        way1.add(file.toPath());    }    System.out.println((System.currentTimeMillis() - l));</code></pre><h2 id="Java-8原生方式"><a href="#Java-8原生方式" class="headerlink" title="Java 8原生方式"></a>Java 8原生方式</h2><pre><code class="java">    l = System.currentTimeMillis();    try {        Set&lt;Path&gt; way3 = Files.find(dir.toPath(), Integer.MAX_VALUE,                (filePath, fileAttr) -&gt; &quot;java&quot;.equals(FileNameUtil.getExtension(filePath.toString())))                .collect(Collectors.toSet());        System.out.println(way3.size());    } catch (IOException e) {        log.error(&quot;fail to traverse files&quot;, e);    }    System.out.println((System.currentTimeMillis() - l));</code></pre><p><code>FileNameUtil</code>来自<code>jodd-util</code></p><h2 id="简单的性能比较"><a href="#简单的性能比较" class="headerlink" title="简单的性能比较"></a>简单的性能比较</h2><p>示例项目<code>dir</code>：一个Git本地仓库，共2万多分散在各个层级的Java文件</p><table><thead><tr><th></th><th>Java8 Files#find</th><th>commons-io</th><th>jodd-util</th></tr></thead><tbody><tr><td>1</td><td>2692</td><td>2738</td><td>2989</td></tr><tr><td>2</td><td>2541</td><td>2949</td><td>3166</td></tr><tr><td>3</td><td>2492</td><td>3303</td><td>2961</td></tr><tr><td>4</td><td>2606</td><td>2651</td><td>3674</td></tr><tr><td>5</td><td>2365</td><td>2806</td><td>3221</td></tr><tr><td>6</td><td>2568</td><td>3048</td><td>3502</td></tr><tr><td>7</td><td>2552</td><td>2913</td><td>3024</td></tr><tr><td>8</td><td>2467</td><td>2852</td><td>2926</td></tr><tr><td>9</td><td>2726</td><td>2671</td><td>3482</td></tr><tr><td>10</td><td>2559</td><td>2667</td><td>2892</td></tr><tr><td>avg</td><td>2556.8</td><td>2859.8</td><td>3183.7</td></tr></tbody></table><p>Java 8原生方式的依赖最少，速度在示例情况下最快，是个不错的选择</p>]]></content>
+    
+    
+    <categories>
+      
+      <category>Java</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>批量clone或pull Gitlab中所有项目</title>
     <link href="/posts/batch-clone-or-pull-gitlab/"/>
     <url>/posts/batch-clone-or-pull-gitlab/</url>
